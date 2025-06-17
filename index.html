@@ -3,28 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Inversión</title>
+    <title>Calculadora de TNA</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="script.js"></script>
 </head>
 <body>
     <div class="calculator">
-        <h1>Calculadora de Inversión</h1>
-        <button onclick="window.location.href='https://trascendo.com/'"> Ver TNA en trascendo </button>
-        
-        <label for="rendimiento">Rendimiento Deseado ($):</label>
-        <input type="number" id="rendimiento" placeholder="Cuanto quiero ganar en un mes">
+        <h1>Calculadora de Tasa</h1>
+       
+        <label for="capital">Capital inicial:</label>
+        <input type="number" id="capital" placeholder="Capital inicial">
 
-        <label for="tna">TNA (%):</label>
-        <input type="number" id="tna" placeholder="De trascendo">
+        <label for="final">Monto final:</label>
+        <input type="number" id="final" placeholder="Monto final recibido">
 
         <label for="dias">Días:</label>
-        <input type="number" id="dias" placeholder="Dias del mes" value="30">
+        <input type="number" id="dias" placeholder="Cantidad de días de la inversión" value="30">
 
         <button onclick="calcularInversion()">Calcular</button>
 
-        <div class="result" id="resultado"></div>
+        <div class="result" id="resultado_tna"></div>
+        <div class="result" id="resultado_tea"></div>
+        <div class="result" id="resultado_tnm"></div>
+        <div class="result" id="resultado_tem"></div>
     </div>
 
-    <script src="script.js"></script>
+    
 </body>
 </html>
