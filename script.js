@@ -32,6 +32,52 @@ function setupInputFormatting() {
 
 window.addEventListener('DOMContentLoaded', setupInputFormatting);
 
+// Formateo para el campo dinero en el nuevo form
+function setupDineroFormatting() {
+    const dineroInput = document.getElementById('dinero');
+    if (!dineroInput) return;
+    dineroInput.addEventListener('input', function(e) {
+        let raw = dineroInput.value.replace(/\./g, "").replace(/[^\d,]/g, "");
+        dineroInput.dataset.raw = raw.replace(/,/g, ".");
+        let parts = raw.split(/[,]/);
+        let intPart = parts[0];
+        let decPart = parts[1] || "";
+        let formattedInt = formatNumberWithDots(intPart);
+        let formatted = decPart ? formattedInt + "," + decPart : formattedInt;
+        dineroInput.value = formatted;
+        dineroInput.setSelectionRange(dineroInput.value.length, dineroInput.value.length);
+    });
+}
+
+window.addEventListener('DOMContentLoaded', setupDineroFormatting);
+// Calculadora de rendimiento e interés total
+function calcularRendimiento() {
+    const dineroInput = document.getElementById('dinero');
+    const tnaInput = document.getElementById('tna_rend');
+    const tiempoInput = document.getElementById('tiempo');
+
+    const dinero = parseFloat(dineroInput.dataset.raw || "0");
+    const tna = parseFloat(tnaInput.value);
+    const tiempo = parseInt(tiempoInput.value);
+    const diasAnio = 365;
+
+    const resultadoRendimiento = document.getElementById('resultado_rendimiento');
+    const resultadoInteres = document.getElementById('resultado_interes');
+
+    const valoresValidos = !isNaN(dinero) && dinero > 0 && !isNaN(tna) && tna > 0 && !isNaN(tiempo) && tiempo > 0;
+
+    if (valoresValidos) {
+        // Fórmula de rendimiento total: dinero * (1 + (tna/100) * (tiempo/diasAnio))
+        const rendimientoTotal = dinero * (1 + (tna / 100) * (tiempo / diasAnio));
+        const interesGanado = rendimientoTotal - dinero;
+        resultadoRendimiento.textContent = `Rendimiento total: $${rendimientoTotal.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+        resultadoInteres.textContent = `Interés total ganado: $${interesGanado.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    } else {
+        resultadoRendimiento.textContent = "Por favor, ingresa valores válidos.";
+        resultadoInteres.textContent = "Por favor, ingresa valores válidos.";
+    }
+}
+
 function calcularInversion() {
     // Tomar el valor sin puntos desde data-raw
     const capitalInput = document.getElementById('capital');

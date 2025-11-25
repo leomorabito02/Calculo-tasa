@@ -8,25 +8,44 @@
     <script src="script.js"></script>
 </head>
 <body>
-    <div class="calculator">
-        <h1>Calculadora de Tasa</h1>
-       
-        <label for="capital">Monto inicial:</label>
-            <input type="text" id="capital" placeholder="Capital inicial">
+        <h1 class="main-title">Calculadora de Renta Fija</h1>
+        <div class="main-container">
+            <div class="calculator">
+                    <h1>Calculadora de Tasa</h1>
+         
+                    <label for="capital">Capital inicial:</label>
+                    <input type="text" id="capital" placeholder="Monto inicial">
 
-        <label for="final">Monto final:</label>
-            <input type="text" id="final" placeholder="Monto final recibido">
+                    <label for="final">Monto final:</label>
+                    <input type="text" id="final" placeholder="Monto final recibido">
 
-        <label for="dias">Días:</label>
-        <input type="number" id="dias" placeholder="Cantidad de días de la inversión" value="30">
+                    <label for="dias">Días:</label>
+                    <input type="number" id="dias" placeholder="Cantidad de días de la inversión" value="30">
 
-        <button onclick="calcularInversion()">Calcular</button>
+                    <button onclick="calcularInversion()">Calcular</button>
 
-        <div class="result" id="resultado_tna"></div>
-        <div class="result" id="resultado_tea"></div>
-        <div class="result" id="resultado_tnm"></div>
-        <div class="result" id="resultado_tem"></div>
-    </div>
+                    <div class="result" id="resultado_tna"></div>
+                    <div class="result" id="resultado_tea"></div>
+                    <div class="result" id="resultado_tnm"></div>
+                    <div class="result" id="resultado_tem"></div>
+            </div>
+            <div class="rendimiento-form">
+                <h2>Calculadora de Rendimiento</h2>
+                <label for="dinero">Dinero invertido:</label>
+                <input type="text" id="dinero" placeholder="Dinero invertido">
+
+                <label for="tna_rend">TNA (%):</label>
+                <input type="number" id="tna_rend" placeholder="TNA anual">
+
+                <label for="tiempo">Tiempo (días):</label>
+                <input type="number" id="tiempo" placeholder="Cantidad de días">
+
+                <button onclick="calcularRendimiento()">Calcular rendimiento</button>
+
+                <div class="result" id="resultado_rendimiento"></div>
+                <div class="result" id="resultado_interes"></div>
+            </div>
+        </div>
 
     
 </body>
