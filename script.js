@@ -1,6 +1,43 @@
+
+function formatNumberWithDots(value) {
+    // Elimina todo excepto dígitos
+    value = value.replace(/\D/g, "");
+    if (!value) return "";
+    // Formatea con puntos cada 3 dígitos
+    return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+function setupInputFormatting() {
+    const capitalInput = document.getElementById('capital');
+    const finalInput = document.getElementById('final');
+
+    [capitalInput, finalInput].forEach(input => {
+        input.addEventListener('input', function(e) {
+            // Permitir solo dígitos y opcionalmente coma/punto decimal
+            let raw = input.value.replace(/\./g, "").replace(/[^\d,]/g, "");
+            // Guardar el valor sin puntos en data-raw
+            input.dataset.raw = raw.replace(/,/g, "."); // Si usas coma como decimal, conviértelo a punto
+            // Formatear para mostrar puntos de miles
+            let parts = raw.split(/[,]/);
+            let intPart = parts[0];
+            let decPart = parts[1] || "";
+            let formattedInt = formatNumberWithDots(intPart);
+            let formatted = decPart ? formattedInt + "," + decPart : formattedInt;
+            input.value = formatted;
+            // Mantener el cursor al final
+            input.setSelectionRange(input.value.length, input.value.length);
+        });
+    });
+}
+
+window.addEventListener('DOMContentLoaded', setupInputFormatting);
+
 function calcularInversion() {
-    const capital = parseFloat(document.getElementById('capital').value);
-    const montoFinal = parseFloat(document.getElementById('final').value);
+    // Tomar el valor sin puntos desde data-raw
+    const capitalInput = document.getElementById('capital');
+    const finalInput = document.getElementById('final');
+    const capital = parseFloat(capitalInput.dataset.raw || "0");
+    const montoFinal = parseFloat(finalInput.dataset.raw || "0");
     const dias = parseInt(document.getElementById('dias').value);
     const diasAnio = 365;
 
