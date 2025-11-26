@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial - Interés Compuesto</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="nav-link">Inicio</a>
+        <a href="explicaciones.html" class="nav-link">Explicaciones</a>
+        <a href="historial.html" class="nav-link active">Historial General</a>
+        <a href="enlaces.html" class="nav-link">Enlaces de Interés</a>
+    </nav>
+    <div style="height: 5rem;" aria-hidden="true"></div>
+    <main class="history-page-container">
+        <h1>Historial de cálculos - Interés Compuesto</h1>
+        <ul id="historial-compuesto-page" class="history-list"></ul>
+        <button class="clear-history-btn" onclick="borrarHistorialCompuesto();location.reload();">Borrar historial</button>
+    </main>
+    <footer class="footer">
+        <div class="footer-content">
+            <span>Desarrollado por <strong>Leonardo Morabito</strong></span>
+            <span>
+                <a href="https://github.com/leomorabito02" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+                &nbsp;|&nbsp;
+                <a href="https://instagram.com/leomorabito2002" target="_blank" rel="noopener" class="footer-link">Instagram</a>
+            </span>
+        </div>
+    </footer>
+    <script>
+    function renderizarHistorialCompuesto() {
+        const historial = JSON.parse(localStorage.getItem('historialCompuesto') || '[]');
+        const ul = document.getElementById('historial-compuesto-page');
+        ul.innerHTML = '';
+        if (historial.length === 0) {
+            ul.innerHTML = '<li style="color:#888;font-size:0.95rem;">Sin cálculos recientes.</li>';
+            return;
+        }
+        
+        function getNombreFrecuencia(dias) {
+            if (dias === 1) return 'Diario';
+            else if (dias === 7) return 'Cada 7 días';
+            else if (dias === 14) return 'Cada 14 días';
+            else if (dias === 30) return 'Mensual';
+            else if (dias === 60) return 'Bimestral';
+            else if (dias === 90) return 'Trimestral';
+            else if (dias === 180) return 'Semestral';
+            else if (dias === 365) return 'Anual';
+            return dias + ' días';
+        }
+        
+        historial.forEach(item => {
+            ul.innerHTML += `<li style="margin-bottom:12px;padding:10px 14px;background:#f7f7fa;border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                <strong>Capital:</strong> $${item.capital.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}<br>
+                <strong>TNA:</strong> ${item.tna}%<br>
+                <strong>Plazo:</strong> ${item.plazoMeses} meses<br>
+                <strong>Frecuencia:</strong> ${getNombreFrecuencia(item.frecuenciaDias)}<br>
+                <strong>Monto Final:</strong> $${item.montoFinal.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}<br>
+                <strong>Interés Total:</strong> $${item.interesTotal.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}<br>
+                <strong>Rendimiento:</strong> ${item.rendimiento.toFixed(2)}%
+            </li>`;
+        });
+    }
+    
+    function borrarHistorialCompuesto() {
+        localStorage.removeItem('historialCompuesto');
+        renderizarHistorialCompuesto();
+    }
+    
+    window.addEventListener('DOMContentLoaded', renderizarHistorialCompuesto);
+    </script>
+</body>
+</html>

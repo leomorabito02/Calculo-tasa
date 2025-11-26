@@ -372,9 +372,50 @@ function borrarHistorial(tipo) {
     renderizarHistorial(tipo);
 }
 
+function renderizarHistorialCompuesto(tipo = 'compuesto') {
+    const historial = JSON.parse(localStorage.getItem('historialCompuesto') || '[]');
+    const ul = document.getElementById('historial-compuesto');
+    ul.innerHTML = '';
+    if (historial.length === 0) {
+        ul.innerHTML = '<li style="color:#888;font-size:0.95rem;background:transparent;border:none;padding:0;box-shadow:none;">Sin cálculos recientes.</li>';
+        return;
+    }
+    const item = historial[0];
+    ul.innerHTML = `<li>
+        <strong>Capital:</strong> $${item.capital.toLocaleString('es-AR')}<br>
+        <strong>Final:</strong> $${item.montoFinal.toLocaleString('es-AR')}<br>
+        <strong>Interés:</strong> $${item.interesGanado.toLocaleString('es-AR')}<br>
+        <strong>Plazo:</strong> ${item.meses} mes/es<br>
+        <strong>Frecuencia:</strong> ${item.frecuencia}<br>
+        <strong>Tasa:</strong> ${item.tasa}% ${item.tipoTasa}
+    </li>`;
+}
+
+function renderizarHistorialComparador(tipo = 'comparador') {
+    const historial = JSON.parse(localStorage.getItem('historialComparador') || '[]');
+    const ul = document.getElementById('historial-comparador');
+    ul.innerHTML = '';
+    if (historial.length === 0) {
+        ul.innerHTML = '<li style="color:#888;font-size:0.95rem;background:transparent;border:none;padding:0;box-shadow:none;">Sin cálculos recientes.</li>';
+        return;
+    }
+    const item = historial[0];
+    const mejor = item.diferenciaAbsoluta > 0 ? 'Plazo Fijo' : 'Billetera Virtual';
+    ul.innerHTML = `<li>
+        <strong>Capital:</strong> $${item.capital.toLocaleString('es-AR')}<br>
+        <strong>Plazo Fijo Final:</strong> $${item.montoFinalPlazoFijo.toLocaleString('es-AR')}<br>
+        <strong>Billetera Final:</strong> $${item.montoFinalBilletera.toLocaleString('es-AR')}<br>
+        <strong>Diferencia:</strong> $${Math.abs(item.diferenciaAbsoluta).toLocaleString('es-AR')}<br>
+        <strong>Mejor:</strong> ${mejor}<br>
+        <strong>Período:</strong> ${item.periodo} días
+    </li>`;
+}
+
 window.addEventListener('DOMContentLoaded', function() {
     renderizarHistorial('inversion');
     renderizarHistorial('rendimiento');
+    renderizarHistorialCompuesto();
+    renderizarHistorialComparador();
 });
 
 // Simulador de Interés Compuesto
@@ -451,7 +492,41 @@ function calcularCompuesto() {
         <strong>Rendimiento:</strong> ${rendimientoPorcentaje.toFixed(2)}%
     </div>`;
     
+    // Agregar al historial
+    const datosCompuesto = {
+        capital: capital,
+        tna: tna,
+        tasa: tna,
+        tipoTasa: 'TNA',
+        meses: plazoMeses,
+        plazoMeses: plazoMeses,
+        frecuenciaDias: frecuenciaDias,
+        frecuencia: frecuenciaInput.options[frecuenciaInput.selectedIndex].text,
+        montoFinal: montoActual,
+        interesGanado: interesTotal,
+        interesTotal: interesTotal,
+        rendimiento: rendimientoPorcentaje
+    };
+    agregarHistorialCompuesto(datosCompuesto);
+    renderizarHistorialCompuesto();
+    
     document.getElementById('compound-results').innerHTML = html;
+}
+
+// --- Historial de Interés Compuesto ---
+function agregarHistorialCompuesto(datos) {
+    let historial = JSON.parse(localStorage.getItem('historialCompuesto') || '[]');
+    historial.unshift(datos);
+    if (historial.length > 10) historial.pop(); // Solo los últimos 10
+    localStorage.setItem('historialCompuesto', JSON.stringify(historial));
+}
+
+// --- Historial de Comparador ---
+function agregarHistorialComparador(datos) {
+    let historial = JSON.parse(localStorage.getItem('historialComparador') || '[]');
+    historial.unshift(datos);
+    if (historial.length > 10) historial.pop(); // Solo los últimos 10
+    localStorage.setItem('historialComparador', JSON.stringify(historial));
 }
 
 // Formateo y validación para comparador de instrumentos
@@ -625,6 +700,24 @@ function calcularComparador() {
     html += '</div>';
     
     html += '</div>';
+    
+    // Agregar al historial
+    const datosComparador = {
+        capital: capital,
+        tnaPlazoFijo: tnaPlazoFijo,
+        tnaBilletera: tnaBilletera,
+        diasTotal: diasTotal,
+        periodo: diasTotal,
+        montoPlazoFijo: montoPlazoFijo,
+        montoFinalPlazoFijo: montoPlazoFijo,
+        montoBilletera: montoBilletera,
+        montoFinalBilletera: montoBilletera,
+        diferenciaAbsoluta: diferenciaAbsoluta,
+        interesesPlazoFijo: interesesPlazoFijo,
+        interesesBilletera: interesesBilletera
+    };
+    agregarHistorialComparador(datosComparador);
+    renderizarHistorialComparador();
     
     document.getElementById('comparador-results').innerHTML = html;
 }

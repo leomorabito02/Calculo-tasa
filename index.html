@@ -13,8 +13,8 @@
     <nav class="navbar">
         <a href="index.html" class="nav-link active">Inicio</a>
         <a href="explicaciones.html" class="nav-link">Explicaciones</a>
-        <a href="historial-tasa.html" class="nav-link">Historial Tasa</a>
-        <a href="historial-rendimiento.html" class="nav-link">Historial Rendimiento</a>
+        <a href="historial.html" class="nav-link">Historial General</a>
+        <a href="enlaces.html" class="nav-link">Enlaces de Interés</a>
 
     </nav>
     <div style="height: 5rem;" aria-hidden="true"></div>
@@ -71,7 +71,7 @@
             <div class="history-block">
                 <h3>Último cálculo</h3>
                 <ul id="historial-inversion" class="history-list"></ul>
-                <a href="historial-tasa.html" class="history-link">Ver historial completo</a>
+                
             </div>
         </div>
         <div class="calculator" id="sec-rendimiento">
@@ -110,7 +110,6 @@
             <div class="history-block">
                 <h3>Último cálculo</h3>
                 <ul id="historial-rendimiento" class="history-list"></ul>
-                <a href="historial-rendimiento.html" class="history-link">Ver historial completo</a>
             </div>
         </div>
         <div class="calculator" id="sec-compuesto">
@@ -161,6 +160,11 @@
 
             <div id="compound-results" style="margin-top:20px;"></div>
 
+            <div class="history-block">
+                <h3>Último cálculo</h3>
+                <ul id="historial-compuesto" class="history-list"></ul>
+            </div>
+
         </div>
         <div class="calculator" id="sec-comparador">
             <h1>Comparador de Instrumentos</h1>
@@ -205,6 +209,12 @@
                 <button onclick="calcularComparador()">Comparar Instrumentos</button>
                 <div id="comparador-results"></div>
             </div>
+
+            <div class="history-block">
+                <h3>Último cálculo</h3>
+                <ul id="historial-comparador" class="history-list"></ul>
+            </div>
+
             <div style="height: 5rem;" aria-hidden="true"></div>
 
 
