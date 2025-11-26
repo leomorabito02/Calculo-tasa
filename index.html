@@ -8,19 +8,32 @@
     <script src="script.js"></script>
 </head>
 <body>
+    <nav class="navbar">
+        <a href="index.html" class="nav-link active">Inicio</a>
+        <a href="explicaciones.html" class="nav-link">Explicaciones</a>
+        <a href="historial-tasa.html" class="nav-link">Historial Tasa</a>
+        <a href="historial-rendimiento.html" class="nav-link">Historial Rendimiento</a>
+            
+    </nav>
         <h1 class="main-title">Calculadora de Renta Fija</h1>
-        <div class="main-container">
+        <div class="main-container responsive-margin">
             <div class="calculator">
                     <h1>Calculadora de Tasa</h1>
          
-                    <label for="capital">Capital inicial:</label>
-                    <input type="text" id="capital" placeholder="Monto inicial">
+                      <label for="capital">Capital inicial:</label>
+                      <input type="text" id="capital" placeholder="Monto inicial">
+                      <div class="help-message"><span title="El dinero que inviertes al inicio"><svg width="16" height="16" style="vertical-align:middle"><circle cx="8" cy="8" r="8" fill="#90caf9"/><text x="8" y="12" text-anchor="middle" font-size="12" fill="#fff">i</text></svg></span> Monto que inviertes al comenzar.</div>
+                      <div class="error-message" id="error-capital"></div>
 
-                    <label for="final">Monto final:</label>
-                    <input type="text" id="final" placeholder="Monto final recibido">
+                      <label for="final">Monto final:</label>
+                      <input type="text" id="final" placeholder="Monto final recibido">
+                      <div class="help-message"><span title="El dinero que recibes al finalizar"><svg width="16" height="16" style="vertical-align:middle"><circle cx="8" cy="8" r="8" fill="#90caf9"/><text x="8" y="12" text-anchor="middle" font-size="12" fill="#fff">i</text></svg></span> Monto total recibido al final.</div>
+                      <div class="error-message" id="error-final"></div>
 
-                    <label for="dias">Días:</label>
-                    <input type="number" id="dias" placeholder="Cantidad de días de la inversión" value="30">
+                      <label for="dias">Días:</label>
+                      <input type="number" id="dias" placeholder="Cantidad de días de la inversión" value="30">
+                      <div class="help-message"><span title="Duración de la inversión"><svg width="16" height="16" style="vertical-align:middle"><circle cx="8" cy="8" r="8" fill="#90caf9"/><text x="8" y="12" text-anchor="middle" font-size="12" fill="#fff">i</text></svg></span> Tiempo total de la inversión en días.</div>
+                      <div class="error-message" id="error-dias"></div>
 
                     <button onclick="calcularInversion()">Calcular</button>
 
@@ -28,25 +41,51 @@
                     <div class="result" id="resultado_tea"></div>
                     <div class="result" id="resultado_tnm"></div>
                     <div class="result" id="resultado_tem"></div>
+                    <div class="history-block">
+                        <h3>Último cálculo</h3>
+                        <ul id="historial-inversion" class="history-list"></ul>
+                        <a href="historial-tasa.html" class="history-link">Ver historial completo</a>
+                    </div>
             </div>
             <div class="rendimiento-form">
                 <h2>Calculadora de Rendimiento</h2>
                 <label for="dinero">Dinero invertido:</label>
                 <input type="text" id="dinero" placeholder="Dinero invertido">
+                <div class="help-message"><span title="El dinero que inviertes"><svg width="16" height="16" style="vertical-align:middle"><circle cx="8" cy="8" r="8" fill="#90caf9"/><text x="8" y="12" text-anchor="middle" font-size="12" fill="#fff">i</text></svg></span> Monto que inviertes para calcular el rendimiento.</div>
+                <div class="error-message" id="error-dinero"></div>
 
                 <label for="tna_rend">TNA (%):</label>
                 <input type="number" id="tna_rend" placeholder="TNA anual">
+                <div class="help-message"><span title="Tasa Nominal Anual"><svg width="16" height="16" style="vertical-align:middle"><circle cx="8" cy="8" r="8" fill="#90caf9"/><text x="8" y="12" text-anchor="middle" font-size="12" fill="#fff">i</text></svg></span> Tasa Nominal Anual (sin capitalización).</div>
+                <div class="error-message" id="error-tna_rend"></div>
 
                 <label for="tiempo">Tiempo (días):</label>
                 <input type="number" id="tiempo" placeholder="Cantidad de días">
+                <div class="help-message"><span title="Duración de la inversión"><svg width="16" height="16" style="vertical-align:middle"><circle cx="8" cy="8" r="8" fill="#90caf9"/><text x="8" y="12" text-anchor="middle" font-size="12" fill="#fff">i</text></svg></span> Tiempo total de la inversión en días.</div>
+                <div class="error-message" id="error-tiempo"></div>
 
                 <button onclick="calcularRendimiento()">Calcular rendimiento</button>
 
                 <div class="result" id="resultado_rendimiento"></div>
                 <div class="result" id="resultado_interes"></div>
+                <div class="history-block">
+                    <h3>Último cálculo</h3>
+                    <ul id="historial-rendimiento" class="history-list"></ul>
+                    <a href="historial-rendimiento.html" class="history-link">Ver historial completo</a>
+                </div>
             </div>
         </div>
 
     
 </body>
+<footer class="footer">
+    <div class="footer-content">
+        <span>Desarrollado por <strong>Leonardo Morabito</strong></span>
+        <span>
+            <a href="https://github.com/leomorabito02" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+            &nbsp;|&nbsp;
+            <a href="https://instagram.com/leomorabito2002" target="_blank" rel="noopener" class="footer-link">Instagram</a>
+        </span>
+    </div>
+</footer>
 </html>

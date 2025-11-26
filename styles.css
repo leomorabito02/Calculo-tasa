@@ -1,6 +1,157 @@
+/* Animación fade-in para resultados */
+.fade-in {
+    animation: fadeInResult 0.7s cubic-bezier(.4,0,.2,1);
+}
+@keyframes fadeInResult {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* Margen lateral para evitar que el contenido quede pegado al borde */
+.responsive-margin {
+    margin-left: 18px;
+    margin-right: 18px;
+}
+@media (max-width: 700px) {
+    .responsive-margin {
+        margin-left: 6vw;
+        margin-right: 6vw;
+    }
+}
+
+/* Página de historial: margen y responsividad */
+.history-page-container {
+    max-width: 500px;
+    margin: 32px auto 80px auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 24px 18px 32px 18px;
+}
+@media (max-width: 700px) {
+    .history-page-container {
+        max-width: 98vw;
+        padding: 18px 4vw 32px 4vw;
+        margin: 18px auto 80px auto;
+    }
+}
+/* Menú de navegación superior */
+.navbar {
+    width: 100%;
+    background: #1976d2;
+    color: #fff;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 12px 24px 12px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    overflow-x: auto;
+    box-sizing: border-box;
+}
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.08rem;
+    padding: 6px 14px;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+.nav-link:hover {
+    background: #1565c0;
+    color: #fff176;
+}
+.nav-link.active {
+    background: #fff176;
+    color: #1976d2;
+}
+
+@media (max-width: 700px) {
+    .navbar {
+        gap: 8px;
+        padding: 10px 12px 10px 12px;
+        flex-wrap: nowrap;
+    }
+    .nav-link {
+        font-size: 0.9rem;
+        padding: 5px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        gap: 4px;
+        padding: 10px 8px 10px 8px;
+    }
+    .nav-link {
+        font-size: 0.8rem;
+        padding: 4px 8px;
+    }
+}
+/* Ayuda contextual debajo de los campos */
+.help-message {
+    font-size: 0.92rem;
+    color: #666;
+    margin-top: -6px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 2px;
+}
+/* Footer moderno y fijo */
+.footer {
+    width: 100%;
+    background: #222;
+    color: #fff;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    padding: 12px 24px;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+    z-index: 10;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.footer-link {
+    color: #90caf9;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.footer-link:hover {
+    color: #fff176;
+}
+@media (min-width: 600px) {
+    .footer-content {
+        flex-direction: row;
+        gap: 16px;
+    }
+}
+/* Mensajes de error debajo de cada campo */
+.error-message {
+    color: #d32f2f;
+    font-size: 0.95rem;
+    margin-top: -10px;
+    margin-bottom: 12px;
+    min-height: 18px;
+    padding-left: 2px;
+    position: relative;
+    z-index: 1;
+}
 /* Título principal */
 .main-title {
-    width: 100vw;
+    width: 100%;
     text-align: center;
     font-size: 2.2rem;
     font-weight: bold;
@@ -8,6 +159,8 @@
     margin-top: 30px;
     margin-bottom: 10px;
     color: #222;
+    padding: 0 16px;
+    box-sizing: border-box;
 }
 body {
     font-family: Arial, sans-serif;
@@ -66,15 +219,65 @@ body {
     text-align: center;
     color: #333;
 }
+
+/* Estilo para el historial en el home */
+.history-list {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+}
+.history-list li {
+    background: #f7f7fa;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border-left: 4px solid #1976d2;
+}
+.history-list li strong {
+    color: #1976d2;
+    display: inline-block;
+    min-width: 80px;
+}
+.history-list li br {
+    content: "";
+}
+.history-list li:last-child {
+    margin-bottom: 0;
+}
 @media (max-width: 700px) {
     .main-container {
         flex-direction: column;
         align-items: center;
         gap: 0;
-        padding: 20px 0;
+        padding: 18vw 0 24vw 0;
     }
     .calculator, .rendimiento-form {
-        width: 95vw;
-        max-width: 350px;
+        width: 98vw;
+        max-width: 99vw;
+        padding: 18px 4vw 18px 4vw;
+        margin-bottom: 24px;
+    }
+    .main-title {
+        font-size: 1.4rem;
+        margin-top: 18px;
+        margin-bottom: 8px;
+    }
+    .calculator button, .rendimiento-form button {
+        font-size: 1.1rem;
+        padding: 13px;
+    }
+    .calculator input, .rendimiento-form input {
+        font-size: 1.08rem;
+        padding: 13px;
+    }
+    .footer {
+        font-size: 0.95rem;
+        padding-bottom: 18px;
+    }
+    .history-block {
+        margin-bottom: 24px;
     }
 }

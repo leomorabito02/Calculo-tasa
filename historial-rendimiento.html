@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial - Calculadora de Rendimiento</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="nav-link">Inicio</a>
+        <a href="explicaciones.html" class="nav-link">Explicaciones</a>
+        <a href="historial-tasa.html" class="nav-link">Historial Tasa</a>
+        <a href="historial-rendimiento.html" class="nav-link active">Historial Rendimiento</a>
+    </nav>
+    <main class="history-page-container">
+        <h1>Historial de cálculos - Rendimiento</h1>
+        <ul id="historial-rendimiento-page" class="history-list"></ul>
+        <button class="clear-history-btn" onclick="borrarHistorial('rendimiento');location.reload();">Borrar historial</button>
+    </main>
+    <footer class="footer">
+        <div class="footer-content">
+            <span>Desarrollado por <strong>Leonardo Morabito</strong></span>
+            <span>
+                <a href="https://github.com/leomorabito02" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+                &nbsp;|&nbsp;
+                <a href="https://instagram.com/leomorabito2002" target="_blank" rel="noopener" class="footer-link">Instagram</a>
+            </span>
+        </div>
+    </footer>
+    <script>
+    function renderizarHistorialRendimiento() {
+        const historial = JSON.parse(localStorage.getItem('historialRendimiento') || '[]');
+        const ul = document.getElementById('historial-rendimiento-page');
+        ul.innerHTML = '';
+        if (historial.length === 0) {
+            ul.innerHTML = '<li style="color:#888;font-size:0.95rem;">Sin cálculos recientes.</li>';
+            return;
+        }
+        historial.forEach(item => {
+            ul.innerHTML += `<li style="margin-bottom:12px;padding:10px 14px;background:#f7f7fa;border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                <strong>Dinero:</strong> $${item.dinero.toLocaleString('es-AR')}<br>
+                <strong>TNA:</strong> ${item.tna}%<br>
+                <strong>Días:</strong> ${item.tiempo}<br>
+                <strong>Rendimiento:</strong> $${item.rendimientoTotal}<br>
+                <strong>Interés:</strong> $${item.interesGanado}
+            </li>`;
+        });
+    }
+    function borrarHistorial(tipo) {
+        const key = tipo === 'inversion' ? 'historialInversion' : 'historialRendimiento';
+        localStorage.removeItem(key);
+        renderizarHistorialRendimiento();
+    }
+    window.addEventListener('DOMContentLoaded', renderizarHistorialRendimiento);
+    </script>
+</body>
+</html>
