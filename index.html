@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,76 +8,210 @@
     <link rel="stylesheet" href="styles.css">
     <script src="script.js"></script>
 </head>
+
 <body>
     <nav class="navbar">
         <a href="index.html" class="nav-link active">Inicio</a>
         <a href="explicaciones.html" class="nav-link">Explicaciones</a>
         <a href="historial-tasa.html" class="nav-link">Historial Tasa</a>
         <a href="historial-rendimiento.html" class="nav-link">Historial Rendimiento</a>
-            
+
     </nav>
-        <h1 class="main-title">Calculadora de Renta Fija</h1>
-        <div class="main-container responsive-margin">
-            <div class="calculator">
-                    <h1>Calculadora de Tasa</h1>
-         
-                      <label for="capital">Capital inicial:</label>
-                      <input type="text" id="capital" placeholder="Monto inicial">
-                      <div class="help-message"><span title="El dinero que inviertes al inicio"><svg width="16" height="16" style="vertical-align:middle"><circle cx="8" cy="8" r="8" fill="#90caf9"/><text x="8" y="12" text-anchor="middle" font-size="12" fill="#fff">i</text></svg></span> Monto que inviertes al comenzar.</div>
-                      <div class="error-message" id="error-capital"></div>
+    <div style="height: 5rem;" aria-hidden="true"></div>
+    <h1 class="main-title">Calculadora de Renta Fija</h1>
+    
+    <!-- Menú de índice flotante para mobile -->
+    <div class="mobile-index">
+        <button class="mobile-index-toggle" onclick="toggleMobileIndex()">☰ Menú</button>
+        <nav class="mobile-index-menu" id="mobile-index-menu">
+            <a href="#sec-tasa" class="index-link">Calculadora de Tasa</a>
+            <a href="#sec-rendimiento" class="index-link">Calculadora de Rendimiento</a>
+            <a href="#sec-compuesto" class="index-link">Interés Compuesto</a>
+            <a href="#sec-comparador" class="index-link">Comparador</a>
+        </nav>
+    </div>
 
-                      <label for="final">Monto final:</label>
-                      <input type="text" id="final" placeholder="Monto final recibido">
-                      <div class="help-message"><span title="El dinero que recibes al finalizar"><svg width="16" height="16" style="vertical-align:middle"><circle cx="8" cy="8" r="8" fill="#90caf9"/><text x="8" y="12" text-anchor="middle" font-size="12" fill="#fff">i</text></svg></span> Monto total recibido al final.</div>
-                      <div class="error-message" id="error-final"></div>
+    <div class="main-container responsive-margin">
+        <div class="calculator" id="sec-tasa">
+            <h1>Calculadora de Tasa</h1>
 
-                      <label for="dias">Días:</label>
-                      <input type="number" id="dias" placeholder="Cantidad de días de la inversión" value="30">
-                      <div class="help-message"><span title="Duración de la inversión"><svg width="16" height="16" style="vertical-align:middle"><circle cx="8" cy="8" r="8" fill="#90caf9"/><text x="8" y="12" text-anchor="middle" font-size="12" fill="#fff">i</text></svg></span> Tiempo total de la inversión en días.</div>
-                      <div class="error-message" id="error-dias"></div>
+            <label for="capital">Capital inicial:</label>
+            <input type="text" id="capital" placeholder="Monto inicial">
+            <div class="help-message"><span title="El dinero que inviertes al inicio"><svg width="16" height="16"
+                        style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> Monto que inviertes al comenzar.</div>
+            <div class="error-message" id="error-capital"></div>
 
-                    <button onclick="calcularInversion()">Calcular</button>
+            <label for="final">Monto final:</label>
+            <input type="text" id="final" placeholder="Monto final recibido">
+            <div class="help-message"><span title="El dinero que recibes al finalizar"><svg width="16" height="16"
+                        style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> Monto total recibido al final.</div>
+            <div class="error-message" id="error-final"></div>
 
-                    <div class="result" id="resultado_tna"></div>
-                    <div class="result" id="resultado_tea"></div>
-                    <div class="result" id="resultado_tnm"></div>
-                    <div class="result" id="resultado_tem"></div>
-                    <div class="history-block">
-                        <h3>Último cálculo</h3>
-                        <ul id="historial-inversion" class="history-list"></ul>
-                        <a href="historial-tasa.html" class="history-link">Ver historial completo</a>
-                    </div>
-            </div>
-            <div class="rendimiento-form">
-                <h2>Calculadora de Rendimiento</h2>
-                <label for="dinero">Dinero invertido:</label>
-                <input type="text" id="dinero" placeholder="Dinero invertido">
-                <div class="help-message"><span title="El dinero que inviertes"><svg width="16" height="16" style="vertical-align:middle"><circle cx="8" cy="8" r="8" fill="#90caf9"/><text x="8" y="12" text-anchor="middle" font-size="12" fill="#fff">i</text></svg></span> Monto que inviertes para calcular el rendimiento.</div>
-                <div class="error-message" id="error-dinero"></div>
+            <label for="dias">Días:</label>
+            <input type="number" id="dias" placeholder="Cantidad de días de la inversión" value="30">
+            <div class="help-message"><span title="Duración de la inversión"><svg width="16" height="16"
+                        style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> Tiempo total de la inversión en días.</div>
+            <div class="error-message" id="error-dias"></div>
 
-                <label for="tna_rend">TNA (%):</label>
-                <input type="number" id="tna_rend" placeholder="TNA anual">
-                <div class="help-message"><span title="Tasa Nominal Anual"><svg width="16" height="16" style="vertical-align:middle"><circle cx="8" cy="8" r="8" fill="#90caf9"/><text x="8" y="12" text-anchor="middle" font-size="12" fill="#fff">i</text></svg></span> Tasa Nominal Anual (sin capitalización).</div>
-                <div class="error-message" id="error-tna_rend"></div>
+            <button onclick="calcularInversion()">Calcular</button>
 
-                <label for="tiempo">Tiempo (días):</label>
-                <input type="number" id="tiempo" placeholder="Cantidad de días">
-                <div class="help-message"><span title="Duración de la inversión"><svg width="16" height="16" style="vertical-align:middle"><circle cx="8" cy="8" r="8" fill="#90caf9"/><text x="8" y="12" text-anchor="middle" font-size="12" fill="#fff">i</text></svg></span> Tiempo total de la inversión en días.</div>
-                <div class="error-message" id="error-tiempo"></div>
-
-                <button onclick="calcularRendimiento()">Calcular rendimiento</button>
-
-                <div class="result" id="resultado_rendimiento"></div>
-                <div class="result" id="resultado_interes"></div>
-                <div class="history-block">
-                    <h3>Último cálculo</h3>
-                    <ul id="historial-rendimiento" class="history-list"></ul>
-                    <a href="historial-rendimiento.html" class="history-link">Ver historial completo</a>
-                </div>
+            <div class="result" id="resultado_tna"></div>
+            <div class="result" id="resultado_tea"></div>
+            <div class="result" id="resultado_tnm"></div>
+            <div class="result" id="resultado_tem"></div>
+            <div class="history-block">
+                <h3>Último cálculo</h3>
+                <ul id="historial-inversion" class="history-list"></ul>
+                <a href="historial-tasa.html" class="history-link">Ver historial completo</a>
             </div>
         </div>
+        <div class="calculator" id="sec-rendimiento">
+            <h1>Calculadora de Rendimiento</h1>
+            <label for="dinero">Dinero invertido:</label>
+            <input type="text" id="dinero" placeholder="Dinero invertido">
+            <div class="help-message"><span title="El dinero que inviertes"><svg width="16" height="16"
+                        style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> Monto que inviertes para calcular el rendimiento.</div>
+            <div class="error-message" id="error-dinero"></div>
 
-    
+            <label for="tna_rend">TNA (%):</label>
+            <input type="number" id="tna_rend" placeholder="TNA anual">
+            <div class="help-message"><span title="Tasa Nominal Anual"><svg width="16" height="16"
+                        style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> Tasa Nominal Anual (sin capitalización).</div>
+            <div class="error-message" id="error-tna_rend"></div>
+
+            <label for="tiempo">Tiempo (días):</label>
+            <input type="number" id="tiempo" placeholder="Cantidad de días">
+            <div class="help-message"><span title="Duración de la inversión"><svg width="16" height="16"
+                        style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> Tiempo total de la inversión en días.</div>
+            <div class="error-message" id="error-tiempo"></div>
+
+            <button onclick="calcularRendimiento()">Calcular rendimiento</button>
+
+            <div class="result" id="resultado_rendimiento"></div>
+            <div class="result" id="resultado_interes"></div>
+            <div class="history-block">
+                <h3>Último cálculo</h3>
+                <ul id="historial-rendimiento" class="history-list"></ul>
+                <a href="historial-rendimiento.html" class="history-link">Ver historial completo</a>
+            </div>
+        </div>
+        <div class="calculator" id="sec-compuesto">
+
+            <h1>Simulador de Interés Compuesto</h1>
+
+            <label for="compound-capital">Capital inicial:</label>
+            <input type="text" id="compound-capital" placeholder="Monto inicial">
+            <div class="help-message"><span title="Dinero que inviertes"><svg width="16" height="16"
+                        style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> Monto inicial a invertir.</div>
+            <div class="error-message" id="error-compound-capital"></div>
+
+            <label for="compound-tna">TNA (%):</label>
+            <input type="number" id="compound-tna" placeholder="Tasa anual %" step="0.01">
+            <div class="help-message"><span title="Tasa Nominal Anual"><svg width="16" height="16"
+                        style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> Tasa nominal anual (%).</div>
+            <div class="error-message" id="error-compound-tna"></div>
+
+            <label for="compound-plazo">Plazo (meses):</label>
+            <input type="number" id="compound-plazo" placeholder="Meses" value="12" step="1" min="1">
+            <div class="help-message"><span title="Duración total"><svg width="16" height="16"
+                        style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> Tiempo total en meses.</div>
+            <div class="error-message" id="error-compound-plazo"></div>
+
+            <label for="compound-frecuencia">Frecuencia de capitalización:</label>
+            <select id="compound-frecuencia">
+                <option value="1">Diario</option>
+                <option value="7">Cada 7 días</option>
+                <option value="14">Cada 14 días</option>
+                <option value="30">Mensual (30 días)</option>
+                <option value="60">Bimestral (60 días)</option>
+                <option value="90">Trimestral (90 días)</option>
+                <option value="180">Semestral (180 días)</option>
+                <option value="365">Anual (365 días)</option>
+            </select>
+            <div style="height: 2rem;" aria-hidden="true"></div>
+
+            <button onclick="calcularCompuesto()">Simular Interés Compuesto</button>
+
+            <div id="compound-results" style="margin-top:20px;"></div>
+
+        </div>
+        <div class="calculator" id="sec-comparador">
+            <h1>Comparador de Instrumentos</h1>
+            <p class="comparador-subtitle">Compara Plazo Fijo vs Billetera Virtual</p>
+
+            <label for="comparador-capital">Monto a invertir:</label>
+            <input type="text" id="comparador-capital" placeholder="Monto inicial">
+            <div class="help-message"><span title="Dinero a invertir"><svg width="16" height="16"
+                        style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> Capital para ambos escenarios.</div>
+            <div class="error-message" id="error-comparador-capital"></div>
+
+            <label for="comparador-plazo-fijo-tna">Plazo Fijo TNA (%):</label>
+            <input type="number" id="comparador-plazo-fijo-tna" placeholder="Tasa plazo fijo" step="0.01" value="">
+            <div class="help-message"><span title="Tasa plazo fijo"><svg width="16" height="16"
+                        style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> TNA de Plazo Fijo a 30 días renovable.</div>
+            <div class="error-message" id="error-comparador-plazo-fijo-tna"></div>
+
+            <label for="comparador-billetera-tna">Billetera Virtual TNA (%):</label>
+            <input type="number" id="comparador-billetera-tna" placeholder="Tasa billetera" step="0.01" value="">
+            <div class="help-message"><span title="Tasa billetera virtual"><svg width="16" height="16"
+                        style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> TNA de Billetera Virtual con interés diario.</div>
+            <div class="error-message" id="error-comparador-billetera-tna"></div>
+
+            <label for="comparador-periodo">Período de análisis (días):</label>
+            <input type="number" id="comparador-periodo" placeholder="Días" value="30" min="1" step="1">
+            <div class="help-message"><span title="Período"><svg width="16" height="16" style="vertical-align:middle">
+                        <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
+                            font-size="12" fill="#fff">i</text>
+                    </svg></span> Cantidad de días para la comparación.</div>
+            <div class="error-message" id="error-comparador-periodo"></div>
+
+            <div class="comparador-escenarios">
+                <button onclick="calcularComparador()">Comparar Instrumentos</button>
+                <div id="comparador-results"></div>
+            </div>
+            <div style="height: 5rem;" aria-hidden="true"></div>
+
+
+        </div>
+    </div>
+    </div>
+
 </body>
 <footer class="footer">
     <div class="footer-content">
@@ -84,8 +219,10 @@
         <span>
             <a href="https://github.com/leomorabito02" target="_blank" rel="noopener" class="footer-link">GitHub</a>
             &nbsp;|&nbsp;
-            <a href="https://instagram.com/leomorabito2002" target="_blank" rel="noopener" class="footer-link">Instagram</a>
+            <a href="https://instagram.com/leomorabito2002" target="_blank" rel="noopener"
+                class="footer-link">Instagram</a>
         </span>
     </div>
 </footer>
+
 </html>
