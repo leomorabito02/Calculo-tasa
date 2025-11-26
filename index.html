@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de TNA</title>
+    <title>Calculadora de Renta Fija</title>
     <link rel="stylesheet" href="styles.css">
     <script src="script.js"></script>
 </head>
@@ -15,12 +15,10 @@
         <a href="explicaciones.html" class="nav-link">Explicaciones</a>
         <a href="historial.html" class="nav-link">Historial General</a>
         <a href="enlaces.html" class="nav-link">Enlaces de Interés</a>
-
     </nav>
     <div style="height: 5rem;" aria-hidden="true"></div>
     <h1 class="main-title">Calculadora de Renta Fija</h1>
     
-    <!-- Menú de índice flotante para mobile -->
     <div class="mobile-index">
         <button class="mobile-index-toggle" onclick="toggleMobileIndex()">☰ Menú</button>
         <nav class="mobile-index-menu" id="mobile-index-menu">
@@ -32,11 +30,12 @@
     </div>
 
     <div class="main-container responsive-margin">
+        
         <div class="calculator" id="sec-tasa">
             <h1>Calculadora de Tasa</h1>
 
             <label for="capital">Capital inicial:</label>
-            <input type="text" id="capital" placeholder="Monto inicial">
+            <input type="text" id="capital" class="mascara-moneda" placeholder="Ej: 1.000,00" inputmode="decimal">
             <div class="help-message"><span title="El dinero que inviertes al inicio"><svg width="16" height="16"
                         style="vertical-align:middle">
                         <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
@@ -45,7 +44,7 @@
             <div class="error-message" id="error-capital"></div>
 
             <label for="final">Monto final:</label>
-            <input type="text" id="final" placeholder="Monto final recibido">
+            <input type="text" id="final" class="mascara-moneda" placeholder="Ej: 1.500,00" inputmode="decimal">
             <div class="help-message"><span title="El dinero que recibes al finalizar"><svg width="16" height="16"
                         style="vertical-align:middle">
                         <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
@@ -54,7 +53,7 @@
             <div class="error-message" id="error-final"></div>
 
             <label for="dias">Días:</label>
-            <input type="number" id="dias" placeholder="Cantidad de días de la inversión" value="30">
+            <input type="number" id="dias" placeholder="Cantidad de días" value="30" step="1" min="1">
             <div class="help-message"><span title="Duración de la inversión"><svg width="16" height="16"
                         style="vertical-align:middle">
                         <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
@@ -71,13 +70,14 @@
             <div class="history-block">
                 <h3>Último cálculo</h3>
                 <ul id="historial-inversion" class="history-list"></ul>
-                
             </div>
         </div>
+
         <div class="calculator" id="sec-rendimiento">
             <h1>Calculadora de Rendimiento</h1>
+            
             <label for="dinero">Dinero invertido:</label>
-            <input type="text" id="dinero" placeholder="Dinero invertido">
+            <input type="text" id="dinero" class="mascara-moneda" placeholder="Ej: 50.000,00" inputmode="decimal">
             <div class="help-message"><span title="El dinero que inviertes"><svg width="16" height="16"
                         style="vertical-align:middle">
                         <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
@@ -86,7 +86,7 @@
             <div class="error-message" id="error-dinero"></div>
 
             <label for="tna_rend">TNA (%):</label>
-            <input type="number" id="tna_rend" placeholder="TNA anual">
+            <input type="text" id="tna_rend" class="mascara-moneda" placeholder="Ej: 45,50" inputmode="decimal">
             <div class="help-message"><span title="Tasa Nominal Anual"><svg width="16" height="16"
                         style="vertical-align:middle">
                         <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
@@ -95,7 +95,7 @@
             <div class="error-message" id="error-tna_rend"></div>
 
             <label for="tiempo">Tiempo (días):</label>
-            <input type="number" id="tiempo" placeholder="Cantidad de días">
+            <input type="number" id="tiempo" placeholder="Cantidad de días" step="1" min="1">
             <div class="help-message"><span title="Duración de la inversión"><svg width="16" height="16"
                         style="vertical-align:middle">
                         <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
@@ -112,12 +112,12 @@
                 <ul id="historial-rendimiento" class="history-list"></ul>
             </div>
         </div>
-        <div class="calculator" id="sec-compuesto">
 
+        <div class="calculator" id="sec-compuesto">
             <h1>Simulador de Interés Compuesto</h1>
 
             <label for="compound-capital">Capital inicial:</label>
-            <input type="text" id="compound-capital" placeholder="Monto inicial">
+            <input type="text" id="compound-capital" class="mascara-moneda" placeholder="Ej: 10.000,00" inputmode="decimal">
             <div class="help-message"><span title="Dinero que inviertes"><svg width="16" height="16"
                         style="vertical-align:middle">
                         <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
@@ -126,7 +126,7 @@
             <div class="error-message" id="error-compound-capital"></div>
 
             <label for="compound-tna">TNA (%):</label>
-            <input type="number" id="compound-tna" placeholder="Tasa anual %" step="0.01">
+            <input type="text" id="compound-tna" class="mascara-moneda" placeholder="Ej: 38,50" inputmode="decimal">
             <div class="help-message"><span title="Tasa Nominal Anual"><svg width="16" height="16"
                         style="vertical-align:middle">
                         <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
@@ -164,14 +164,14 @@
                 <h3>Último cálculo</h3>
                 <ul id="historial-compuesto" class="history-list"></ul>
             </div>
-
         </div>
+
         <div class="calculator" id="sec-comparador">
             <h1>Comparador de Instrumentos</h1>
             <p class="comparador-subtitle">Compara Plazo Fijo vs Billetera Virtual</p>
 
             <label for="comparador-capital">Monto a invertir:</label>
-            <input type="text" id="comparador-capital" placeholder="Monto inicial">
+            <input type="text" id="comparador-capital" class="mascara-moneda" placeholder="Ej: 100.000,00" inputmode="decimal">
             <div class="help-message"><span title="Dinero a invertir"><svg width="16" height="16"
                         style="vertical-align:middle">
                         <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
@@ -180,7 +180,7 @@
             <div class="error-message" id="error-comparador-capital"></div>
 
             <label for="comparador-plazo-fijo-tna">Plazo Fijo TNA (%):</label>
-            <input type="number" id="comparador-plazo-fijo-tna" placeholder="Tasa plazo fijo" step="0.01" value="">
+            <input type="text" id="comparador-plazo-fijo-tna" class="mascara-moneda" placeholder="Ej: 40,00" inputmode="decimal">
             <div class="help-message"><span title="Tasa plazo fijo"><svg width="16" height="16"
                         style="vertical-align:middle">
                         <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
@@ -189,7 +189,7 @@
             <div class="error-message" id="error-comparador-plazo-fijo-tna"></div>
 
             <label for="comparador-billetera-tna">Billetera Virtual TNA (%):</label>
-            <input type="number" id="comparador-billetera-tna" placeholder="Tasa billetera" step="0.01" value="">
+            <input type="text" id="comparador-billetera-tna" class="mascara-moneda" placeholder="Ej: 36,50" inputmode="decimal">
             <div class="help-message"><span title="Tasa billetera virtual"><svg width="16" height="16"
                         style="vertical-align:middle">
                         <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
@@ -198,7 +198,7 @@
             <div class="error-message" id="error-comparador-billetera-tna"></div>
 
             <label for="comparador-periodo">Período de análisis (días):</label>
-            <input type="number" id="comparador-periodo" placeholder="Días" value="30" min="1" step="1">
+            <input type="number" id="comparador-periodo" placeholder="Días" value="30" step="1" min="1">
             <div class="help-message"><span title="Período"><svg width="16" height="16" style="vertical-align:middle">
                         <circle cx="8" cy="8" r="8" fill="#90caf9" /><text x="8" y="12" text-anchor="middle"
                             font-size="12" fill="#fff">i</text>
@@ -214,25 +214,21 @@
                 <h3>Último cálculo</h3>
                 <ul id="historial-comparador" class="history-list"></ul>
             </div>
-
+            
             <div style="height: 5rem;" aria-hidden="true"></div>
-
-
         </div>
     </div>
-    </div>
 
+    <footer class="footer">
+        <div class="footer-content">
+            <span>Desarrollado por <strong>Leonardo Morabito</strong></span>
+            <span>
+                <a href="https://github.com/leomorabito02" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+                &nbsp;|&nbsp;
+                <a href="https://instagram.com/leomorabito2002" target="_blank" rel="noopener"
+                    class="footer-link">Instagram</a>
+            </span>
+        </div>
+    </footer>
 </body>
-<footer class="footer">
-    <div class="footer-content">
-        <span>Desarrollado por <strong>Leonardo Morabito</strong></span>
-        <span>
-            <a href="https://github.com/leomorabito02" target="_blank" rel="noopener" class="footer-link">GitHub</a>
-            &nbsp;|&nbsp;
-            <a href="https://instagram.com/leomorabito2002" target="_blank" rel="noopener"
-                class="footer-link">Instagram</a>
-        </span>
-    </div>
-</footer>
-
 </html>

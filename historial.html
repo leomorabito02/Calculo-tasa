@@ -25,32 +25,25 @@
                 <button class="tab-btn" data-tab="comparador">🔀 Comparador</button>
             </div>
 
-            <!-- TAB: TASA -->
             <div class="tab-content active" id="tab-tasa">
                 <h2>Historial - Calculadora de Tasa</h2>
                 <ul id="historial-tasa-list" class="history-list"></ul>
-                <button class="clear-history-btn" onclick="borrarHistorialTasa();actualizarTab('tasa');">Borrar historial de Tasa</button>
+                <button class="clear-history-btn" onclick="borrarHistorial('historialInversion');actualizarTab('tasa');">Borrar historial</button>
             </div>
-
-            <!-- TAB: RENDIMIENTO -->
             <div class="tab-content" id="tab-rendimiento">
                 <h2>Historial - Calculadora de Rendimiento</h2>
                 <ul id="historial-rendimiento-list" class="history-list"></ul>
-                <button class="clear-history-btn" onclick="borrarHistorialRendimiento();actualizarTab('rendimiento');">Borrar historial de Rendimiento</button>
+                <button class="clear-history-btn" onclick="borrarHistorial('historialRendimiento');actualizarTab('rendimiento');">Borrar historial</button>
             </div>
-
-            <!-- TAB: INTERÉS COMPUESTO -->
             <div class="tab-content" id="tab-compuesto">
                 <h2>Historial - Interés Compuesto</h2>
                 <ul id="historial-compuesto-list" class="history-list"></ul>
-                <button class="clear-history-btn" onclick="borrarHistorialCompuesto();actualizarTab('compuesto');">Borrar historial de Compuesto</button>
+                <button class="clear-history-btn" onclick="borrarHistorial('historialCompuesto');actualizarTab('compuesto');">Borrar historial</button>
             </div>
-
-            <!-- TAB: COMPARADOR -->
             <div class="tab-content" id="tab-comparador">
-                <h2>Historial - Comparador de Instrumentos</h2>
+                <h2>Historial - Comparador</h2>
                 <ul id="historial-comparador-list" class="history-list"></ul>
-                <button class="clear-history-btn" onclick="borrarHistorialComparador();actualizarTab('comparador');">Borrar historial de Comparador</button>
+                <button class="clear-history-btn" onclick="borrarHistorial('historialComparador');actualizarTab('comparador');">Borrar historial</button>
             </div>
         </div>
     </main>
@@ -67,148 +60,95 @@
     </footer>
 
     <script>
-    // Sistema de pestañas
+    // --- FORMATO MANUAL OBLIGATORIO ---
+    function formatearMoneda(valor) {
+        if (valor === "" || valor === undefined || isNaN(valor)) return "0,00";
+        let numeroTecnico = parseFloat(valor).toFixed(2);
+        let partes = numeroTecnico.split('.');
+        partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return partes.join(',');
+    }
+
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const tabName = this.getAttribute('data-tab');
-            actualizarTab(tabName);
+            actualizarTab(this.getAttribute('data-tab'));
         });
     });
 
     function actualizarTab(tabName) {
-        // Ocultar todos los tabs
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-
-        // Mostrar el tab seleccionado
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.getElementById('tab-' + tabName).classList.add('active');
         document.querySelector('[data-tab="' + tabName + '"]').classList.add('active');
 
-        // Renderizar contenido según el tab
         if (tabName === 'tasa') renderizarHistorialTasa();
         else if (tabName === 'rendimiento') renderizarHistorialRendimiento();
         else if (tabName === 'compuesto') renderizarHistorialCompuesto();
         else if (tabName === 'comparador') renderizarHistorialComparador();
     }
 
-    // TASA
     function renderizarHistorialTasa() {
         const historial = JSON.parse(localStorage.getItem('historialInversion') || '[]');
         const ul = document.getElementById('historial-tasa-list');
         ul.innerHTML = '';
-        if (historial.length === 0) {
-            ul.innerHTML = '<li style="color:#888;font-size:0.95rem;">Sin cálculos recientes.</li>';
-            return;
-        }
+        if (historial.length === 0) { ul.innerHTML = '<li style="color:#888;">Sin cálculos recientes.</li>'; return; }
         historial.forEach(item => {
             ul.innerHTML += `<li style="margin-bottom:12px;padding:10px 14px;background:#f7f7fa;border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                <strong>Capital:</strong> $${item.capital.toLocaleString('es-AR')}<br>
-                <strong>Final:</strong> $${item.montoFinal.toLocaleString('es-AR')}<br>
-                <strong>Días:</strong> ${item.dias}<br>
-                <strong>TNA:</strong> ${item.tna}% | <strong>TEA:</strong> ${item.tea}% | <strong>TNM:</strong> ${item.tnm}% | <strong>TEM:</strong> ${item.tem}%
+                <strong>Capital:</strong> $${formatearMoneda(item.capital)}<br>
+                <strong>Final:</strong> $${formatearMoneda(item.montoFinal)}<br>
+                <strong>TNA:</strong> ${formatearMoneda(item.tna)}% | <strong>TEA:</strong> ${formatearMoneda(item.tea)}%
             </li>`;
         });
     }
 
-    // RENDIMIENTO
     function renderizarHistorialRendimiento() {
         const historial = JSON.parse(localStorage.getItem('historialRendimiento') || '[]');
         const ul = document.getElementById('historial-rendimiento-list');
         ul.innerHTML = '';
-        if (historial.length === 0) {
-            ul.innerHTML = '<li style="color:#888;font-size:0.95rem;">Sin cálculos recientes.</li>';
-            return;
-        }
+        if (historial.length === 0) { ul.innerHTML = '<li style="color:#888;">Sin cálculos recientes.</li>'; return; }
         historial.forEach(item => {
             ul.innerHTML += `<li style="margin-bottom:12px;padding:10px 14px;background:#f7f7fa;border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                <strong>Dinero:</strong> $${item.dinero.toLocaleString('es-AR')}<br>
-                <strong>TNA:</strong> ${item.tna}%<br>
-                <strong>Días:</strong> ${item.tiempo}<br>
-                <strong>Rendimiento:</strong> $${item.rendimientoTotal}<br>
-                <strong>Interés:</strong> $${item.interesGanado}
+                <strong>Inv:</strong> $${formatearMoneda(item.dinero)}<br>
+                <strong>Rend:</strong> $${formatearMoneda(item.rendimientoTotal)}<br>
+                <strong>Int:</strong> $${formatearMoneda(item.interesGanado)}
             </li>`;
         });
     }
 
-    // INTERÉS COMPUESTO
     function renderizarHistorialCompuesto() {
         const historial = JSON.parse(localStorage.getItem('historialCompuesto') || '[]');
         const ul = document.getElementById('historial-compuesto-list');
         ul.innerHTML = '';
-        if (historial.length === 0) {
-            ul.innerHTML = '<li style="color:#888;font-size:0.95rem;">Sin cálculos recientes.</li>';
-            return;
-        }
-        
-        function getNombreFrecuencia(dias) {
-            if (dias === 1) return 'Diario';
-            else if (dias === 7) return 'Cada 7 días';
-            else if (dias === 14) return 'Cada 14 días';
-            else if (dias === 30) return 'Mensual';
-            else if (dias === 60) return 'Bimestral';
-            else if (dias === 90) return 'Trimestral';
-            else if (dias === 180) return 'Semestral';
-            else if (dias === 365) return 'Anual';
-            return dias + ' días';
-        }
-        
+        if (historial.length === 0) { ul.innerHTML = '<li style="color:#888;">Sin cálculos recientes.</li>'; return; }
         historial.forEach(item => {
             ul.innerHTML += `<li style="margin-bottom:12px;padding:10px 14px;background:#f7f7fa;border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                <strong>Capital:</strong> $${item.capital.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}<br>
-                <strong>TNA:</strong> ${item.tna}% | <strong>Plazo:</strong> ${item.plazoMeses} meses | <strong>Frecuencia:</strong> ${getNombreFrecuencia(item.frecuenciaDias)}<br>
-                <strong>Monto Final:</strong> $${item.montoFinal.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}<br>
-                <strong>Interés:</strong> $${item.interesTotal.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})} (${item.rendimiento.toFixed(2)}%)
+                <strong>Cap:</strong> $${formatearMoneda(item.capital)}<br>
+                <strong>Final:</strong> $${formatearMoneda(item.montoFinal)}<br>
+                <strong>Rend:</strong> ${formatearMoneda(item.rendimiento)}%
             </li>`;
         });
     }
 
-    // COMPARADOR
     function renderizarHistorialComparador() {
         const historial = JSON.parse(localStorage.getItem('historialComparador') || '[]');
         const ul = document.getElementById('historial-comparador-list');
         ul.innerHTML = '';
-        if (historial.length === 0) {
-            ul.innerHTML = '<li style="color:#888;font-size:0.95rem;">Sin cálculos recientes.</li>';
-            return;
-        }
-        
+        if (historial.length === 0) { ul.innerHTML = '<li style="color:#888;">Sin cálculos recientes.</li>'; return; }
         historial.forEach(item => {
-            const ganadorPlazoFijo = item.diferenciaAbsoluta > 0;
-            const ganador = ganadorPlazoFijo ? 'Plazo Fijo' : 'Billetera Virtual';
-            const diferencia = Math.abs(item.diferenciaAbsoluta);
-            
+            const ganador = item.diferenciaAbsoluta > 0 ? 'Plazo Fijo' : 'Billetera Virtual';
             ul.innerHTML += `<li style="margin-bottom:12px;padding:10px 14px;background:#f7f7fa;border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                <strong>Capital:</strong> $${item.capital.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}<br>
-                <strong>Período:</strong> ${item.diasTotal} días<br>
-                <strong>Plazo Fijo (${item.tnaPlazoFijo}%):</strong> $${item.montoPlazoFijo.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})} | 
-                <strong>Billetera (${item.tnaBilletera}%):</strong> $${item.montoBilletera.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}<br>
-                <strong style="color: ${ganadorPlazoFijo ? '#4caf50' : '#ff9800'};">✓ Ganador: ${ganador}</strong> | <strong>Diferencia:</strong> $${diferencia.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}
+                <strong>Cap:</strong> $${formatearMoneda(item.capital)}<br>
+                <strong>PF:</strong> $${formatearMoneda(item.montoPlazoFijo)} | <strong>Bill:</strong> $${formatearMoneda(item.montoBilletera)}<br>
+                <strong style="color: ${item.diferenciaAbsoluta > 0 ? '#4caf50' : '#ff9800'};">✓ ${ganador}</strong>
             </li>`;
         });
     }
 
-    // Funciones para borrar
-    function borrarHistorialTasa() {
-        localStorage.removeItem('historialInversion');
-    }
-    function borrarHistorialRendimiento() {
-        localStorage.removeItem('historialRendimiento');
-    }
-    function borrarHistorialCompuesto() {
-        localStorage.removeItem('historialCompuesto');
-    }
-    function borrarHistorialComparador() {
-        localStorage.removeItem('historialComparador');
+    function borrarHistorial(key) {
+        localStorage.removeItem(key);
     }
 
-    // Cargar todos los históricos al iniciar
-    window.addEventListener('DOMContentLoaded', function() {
-        actualizarTab('tasa');
-    });
+    window.addEventListener('DOMContentLoaded', function() { actualizarTab('tasa'); });
     </script>
 </body>
 </html>

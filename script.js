@@ -1,723 +1,347 @@
-
-// Función para toggle del menú de índice en mobile
-function toggleMobileIndex() {
-    const menu = document.getElementById('mobile-index-menu');
-    menu.classList.toggle('active');
+// --- 1. UTILIDADES ---
+function parsearValor(str) {
+    if (!str) return 0;
+    // Eliminamos puntos de miles y cambiamos coma por punto decimal
+    let limpio = str.toString().replace(/\./g, '').replace(',', '.');
+    let val = parseFloat(limpio);
+    return isNaN(val) ? 0 : val;
 }
 
-// Cerrar menú al hacer clic en un enlace
-document.addEventListener('DOMContentLoaded', function() {
-    const indexLinks = document.querySelectorAll('.index-link');
-    indexLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            const menu = document.getElementById('mobile-index-menu');
-            menu.classList.remove('active');
+function formatearMoneda(valor) {
+    if (valor === "" || valor === undefined || isNaN(valor)) return "0,00";
+    let numeroTecnico = parseFloat(valor).toFixed(2);
+    let partes = numeroTecnico.split('.');
+    let parteEntera = partes[0];
+    let parteDecimal = partes[1];
+    parteEntera = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return `${parteEntera},${parteDecimal}`;
+}
+
+// --- 2. MÁSCARA DE ENTRADA ---
+function setupInputMasks() {
+    const inputs = document.querySelectorAll('.mascara-moneda');
+    
+    inputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+            let cursorPosition = this.selectionStart;
+            let originalLength = this.value.length;
+
+            // Limpiar: dejar solo números y coma
+            let value = this.value.replace(/[^0-9,]/g, '');
+            
+            const parts = value.split(',');
+            if (parts.length > 2) value = parts[0] + ',' + parts.slice(1).join('');
+
+            let integerPart = parts[0];
+            let decimalPart = parts.length > 1 ? ',' + parts[1].substring(0, 2) : '';
+            
+            if (value === '') { this.value = ''; return; }
+
+            // Agregar puntos de miles
+            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            
+            let newValue = integerPart + decimalPart;
+            this.value = newValue;
+
+            // Ajustar cursor
+            let newLength = newValue.length;
+            cursorPosition = cursorPosition + (newLength - originalLength);
+            this.setSelectionRange(cursorPosition, cursorPosition);
         });
     });
+}
+
+// --- 3. INICIO Y VALIDACIONES ---
+document.addEventListener('DOMContentLoaded', function() {
+    setupInputMasks();
+    setupValidations();
+    ['inversion', 'rendimiento', 'compuesto', 'comparador'].forEach(tipo => renderizarHistorial(tipo));
 });
 
-function formatNumberWithDots(value) {
-    // Elimina todo excepto dígitos
-    value = value.replace(/\D/g, "");
-    if (!value) return "";
-    // Formatea con puntos cada 3 dígitos
-    return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
-function setupInputFormatting() {
-    const capitalInput = document.getElementById('capital');
-    const finalInput = document.getElementById('final');
-    const diasInput = document.getElementById('dias');
-
-    function validateCapital(showError = false) {
-        const errorDiv = document.getElementById('error-capital');
-        const value = capitalInput.dataset.raw || "";
-        if (showError && (!value || parseFloat(value) <= 0)) {
-            errorDiv.textContent = "Ingresa un capital válido (> 0)";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
-    function validateFinal(showError = false) {
-        const errorDiv = document.getElementById('error-final');
-        const capital = parseFloat(capitalInput.dataset.raw || "0");
-        const value = finalInput.dataset.raw || "";
-        if (showError && (!value || parseFloat(value) <= capital)) {
-            errorDiv.textContent = "El monto final debe ser mayor al capital";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
-    function validateDias(showError = false) {
-        const errorDiv = document.getElementById('error-dias');
-        const value = diasInput.value;
-        if (showError && (!value || parseInt(value) <= 0)) {
-            errorDiv.textContent = "Ingresa una cantidad de días válida (> 0)";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
-
-    capitalInput.addEventListener('input', function(e) {
-        let raw = capitalInput.value.replace(/\./g, "").replace(/[^\d,]/g, "");
-        capitalInput.dataset.raw = raw.replace(/,/g, ".");
-        let parts = raw.split(/[,]/);
-        let intPart = parts[0];
-        let decPart = parts[1] || "";
-        let formattedInt = formatNumberWithDots(intPart);
-        let formatted = decPart ? formattedInt + "," + decPart : formattedInt;
-        capitalInput.value = formatted;
-        capitalInput.setSelectionRange(capitalInput.value.length, capitalInput.value.length);
-    });
-    finalInput.addEventListener('input', function(e) {
-        let raw = finalInput.value.replace(/\./g, "").replace(/[^\d,]/g, "");
-        finalInput.dataset.raw = raw.replace(/,/g, ".");
-        let parts = raw.split(/[,]/);
-        let intPart = parts[0];
-        let decPart = parts[1] || "";
-        let formattedInt = formatNumberWithDots(intPart);
-        let formatted = decPart ? formattedInt + "," + decPart : formattedInt;
-        finalInput.value = formatted;
-        finalInput.setSelectionRange(finalInput.value.length, finalInput.value.length);
-    });
-    diasInput.addEventListener('input', function(e) {
-        // Solo formatea, sin validar
-    });
-
-    // Exponer funciones para validar cuando se presiona el botón
-    window.validateInversionFields = function() {
-        validateCapital(true);
-        validateFinal(true);
-        validateDias(true);
+function setupValidations() {
+    // Helper para conectar validación usando el parser
+    const connect = (id, errorId, checkFn) => {
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener('input', () => {
+            const val = parsearValor(el.value);
+            const errDiv = document.getElementById(errorId);
+            if(val > 0) {
+                errDiv.textContent = "";
+                if(checkFn) errDiv.textContent = checkFn(val);
+            }
+        });
     };
-}
-window.addEventListener('DOMContentLoaded', setupInputFormatting);
 
-
-// Formateo para el campo dinero en el nuevo form
-function setupDineroFormatting() {
-    const dineroInput = document.getElementById('dinero');
-    const tnaInput = document.getElementById('tna_rend');
-    const tiempoInput = document.getElementById('tiempo');
-    if (!dineroInput || !tnaInput || !tiempoInput) return;
-
-    function validateDinero(showError = false) {
-        const errorDiv = document.getElementById('error-dinero');
-        const value = dineroInput.dataset.raw || "";
-        if (showError && (!value || parseFloat(value) <= 0)) {
-            errorDiv.textContent = "Ingresa un monto válido (> 0)";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
-    function validateTNA(showError = false) {
-        const errorDiv = document.getElementById('error-tna_rend');
-        const value = tnaInput.value;
-        if (showError && (!value || parseFloat(value) <= 0)) {
-            errorDiv.textContent = "Ingresa una TNA válida (> 0)";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
-    function validateTiempo(showError = false) {
-        const errorDiv = document.getElementById('error-tiempo');
-        const value = tiempoInput.value;
-        if (showError && (!value || parseInt(value) <= 0)) {
-            errorDiv.textContent = "Ingresa una cantidad de días válida (> 0)";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
-
-    dineroInput.addEventListener('input', function(e) {
-        let raw = dineroInput.value.replace(/\./g, "").replace(/[^\d,]/g, "");
-        dineroInput.dataset.raw = raw.replace(/,/g, ".");
-        let parts = raw.split(/[,]/);
-        let intPart = parts[0];
-        let decPart = parts[1] || "";
-        let formattedInt = formatNumberWithDots(intPart);
-        let formatted = decPart ? formattedInt + "," + decPart : formattedInt;
-        dineroInput.value = formatted;
-        dineroInput.setSelectionRange(dineroInput.value.length, dineroInput.value.length);
+    connect('capital', 'error-capital');
+    connect('final', 'error-final', (val) => {
+        const cap = parsearValor(document.getElementById('capital').value);
+        return val > cap ? "" : "El monto final debe ser mayor al capital";
     });
-    tnaInput.addEventListener('input', function(e) {
-        // Solo formatea, sin validar
-    });
-    tiempoInput.addEventListener('input', function(e) {
-        // Solo formatea, sin validar
-    });
-
-    // Exponer funciones para validar cuando se presiona el botón
-    window.validateRendimientoFields = function() {
-        validateDinero(true);
-        validateTNA(true);
-        validateTiempo(true);
-    };
+    connect('dinero', 'error-dinero');
+    // Tasas ahora también se validan con parser
+    connect('tna_rend', 'error-tna_rend');
+    connect('compound-capital', 'error-compound-capital');
+    connect('compound-tna', 'error-compound-tna');
+    connect('comparador-capital', 'error-comparador-capital');
+    connect('comparador-plazo-fijo-tna', 'error-comparador-plazo-fijo-tna');
+    connect('comparador-billetera-tna', 'error-comparador-billetera-tna');
 }
 
-window.addEventListener('DOMContentLoaded', setupDineroFormatting);
+// --- 4. CALCULADORAS ---
 
-// Formateo y validación para interés compuesto
-function setupCompoundFormatting() {
-    const capitalInput = document.getElementById('compound-capital');
-    const tnaInput = document.getElementById('compound-tna');
-    const plazoInput = document.getElementById('compound-plazo');
+// A. TASA
+function calcularInversion() {
+    const capital = parsearValor(document.getElementById('capital').value);
+    const final = parsearValor(document.getElementById('final').value);
+    const dias = parseFloat(document.getElementById('dias').value) || 0;
+
+    const errCap = document.getElementById('error-capital');
+    const errFin = document.getElementById('error-final');
+    const errDias = document.getElementById('error-dias');
     
-    if (!capitalInput || !tnaInput || !plazoInput) return;
+    errCap.textContent = capital <= 0 ? "Requerido" : "";
+    errFin.textContent = final <= capital ? "Debe ser mayor al capital" : "";
+    errDias.textContent = dias <= 0 ? "Requerido" : "";
 
-    function validateCompoundCapital(showError = false) {
-        const errorDiv = document.getElementById('error-compound-capital');
-        const value = capitalInput.dataset.raw || "";
-        if (showError && (!value || parseFloat(value) <= 0)) {
-            errorDiv.textContent = "Ingresa un capital válido (> 0)";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
-    function validateCompoundTNA(showError = false) {
-        const errorDiv = document.getElementById('error-compound-tna');
-        const value = tnaInput.value;
-        if (showError && (!value || parseFloat(value) <= 0)) {
-            errorDiv.textContent = "Ingresa una TNA válida (> 0)";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
-    function validateCompoundPlazo(showError = false) {
-        const errorDiv = document.getElementById('error-compound-plazo');
-        const value = plazoInput.value;
-        if (showError && (!value || parseInt(value) <= 0)) {
-            errorDiv.textContent = "Ingresa un plazo válido (> 0)";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
+    if (capital > 0 && final > capital && dias > 0) {
+        const diasAnio = 365;
+        const tna = ((final - capital) / capital) * (diasAnio / dias) * 100;
+        const tea = Math.pow((final / capital), (diasAnio / dias)) - 1;
+        const tnm = tna / 12;
+        const tem = tea / 12;
 
-    capitalInput.addEventListener('input', function(e) {
-        let raw = capitalInput.value.replace(/\./g, "").replace(/[^\d,]/g, "");
-        capitalInput.dataset.raw = raw.replace(/,/g, ".");
-        let parts = raw.split(/[,]/);
-        let intPart = parts[0];
-        let decPart = parts[1] || "";
-        let formattedInt = formatNumberWithDots(intPart);
-        let formatted = decPart ? formattedInt + "," + decPart : formattedInt;
-        capitalInput.value = formatted;
-        capitalInput.setSelectionRange(capitalInput.value.length, capitalInput.value.length);
-    });
-    tnaInput.addEventListener('input', function(e) {
-        // Solo formatea, sin validar
-    });
-    plazoInput.addEventListener('input', function(e) {
-        // Solo formatea, sin validar
-    });
+        const elTNA = document.getElementById('resultado_tna');
+        const elTEA = document.getElementById('resultado_tea');
+        const elTNM = document.getElementById('resultado_tnm');
+        const elTEM = document.getElementById('resultado_tem');
 
-    // Exponer funciones para validar cuando se presiona el botón
-    window.validateCompoundFields = function() {
-        validateCompoundCapital(true);
-        validateCompoundTNA(true);
-        validateCompoundPlazo(true);
-    };
+        elTNA.textContent = `TNA: ${formatearMoneda(tna)}%`;
+        elTEA.textContent = `TEA: ${formatearMoneda(tea * 100)}%`;
+        elTNM.textContent = `TNM: ${formatearMoneda(tnm)}%`;
+        elTEM.textContent = `TEM: ${formatearMoneda(tem * 100)}%`;
+
+        [elTNA, elTEA, elTNM, elTEM].forEach(el => animarResultado(el));
+
+        agregarHistorial('inversion', {
+            capital, montoFinal: final, dias, tna, tea: tea * 100
+        });
+    }
 }
 
-window.addEventListener('DOMContentLoaded', setupCompoundFormatting);
-// Calculadora de rendimiento e interés total
+// B. RENDIMIENTO
 function calcularRendimiento() {
-    // Validar campos primero
-    window.validateRendimientoFields();
+    const dinero = parsearValor(document.getElementById('dinero').value);
+    // IMPORTANTE: Ahora usamos parsearValor para la TNA
+    const tna = parsearValor(document.getElementById('tna_rend').value);
+    const tiempo = parseFloat(document.getElementById('tiempo').value) || 0;
 
-    const dineroInput = document.getElementById('dinero');
-    const tnaInput = document.getElementById('tna_rend');
-    const tiempoInput = document.getElementById('tiempo');
+    document.getElementById('error-dinero').textContent = dinero <= 0 ? "Requerido" : "";
+    document.getElementById('error-tna_rend').textContent = tna <= 0 ? "Requerido" : "";
 
-    const dinero = parseFloat(dineroInput.dataset.raw || "0");
-    const tna = parseFloat(tnaInput.value);
-    const tiempo = parseInt(tiempoInput.value);
-    const diasAnio = 365;
-
-    const resultadoRendimiento = document.getElementById('resultado_rendimiento');
-    const resultadoInteres = document.getElementById('resultado_interes');
-
-    const valoresValidos = !isNaN(dinero) && dinero > 0 && !isNaN(tna) && tna > 0 && !isNaN(tiempo) && tiempo > 0;
-
-    if (valoresValidos) {
-        // Fórmula de rendimiento total: dinero * (1 + (tna/100) * (tiempo/diasAnio))
+    if (dinero > 0 && tna > 0 && tiempo > 0) {
+        const diasAnio = 365;
         const rendimientoTotal = dinero * (1 + (tna / 100) * (tiempo / diasAnio));
         const interesGanado = rendimientoTotal - dinero;
-        resultadoRendimiento.textContent = `Rendimiento total: $${rendimientoTotal.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-        resultadoInteres.textContent = `Interés total ganado: $${interesGanado.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-        resultadoRendimiento.classList.add('fade-in');
-        resultadoInteres.classList.add('fade-in');
-        setTimeout(() => {
-            resultadoRendimiento.classList.remove('fade-in');
-            resultadoInteres.classList.remove('fade-in');
-        }, 800);
-        // Guardar en historial
+
+        const elRend = document.getElementById('resultado_rendimiento');
+        const elInt = document.getElementById('resultado_interes');
+
+        elRend.textContent = `Rendimiento total: $${formatearMoneda(rendimientoTotal)}`;
+        elInt.textContent = `Interés total ganado: $${formatearMoneda(interesGanado)}`;
+        
+        animarResultado(elRend);
+        animarResultado(elInt);
+
         agregarHistorial('rendimiento', {
-            dinero,
-            tna,
-            tiempo,
-            rendimientoTotal: rendimientoTotal.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2}),
-            interesGanado: interesGanado.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})
-        });
-    } else {
-        resultadoRendimiento.classList.add('fade-in');
-        resultadoInteres.classList.add('fade-in');
-        setTimeout(() => {
-            resultadoRendimiento.classList.remove('fade-in');
-            resultadoInteres.classList.remove('fade-in');
-        }, 800);
-    }
-}
-
-function calcularInversion() {
-    // Validar campos primero
-    window.validateInversionFields();
-
-    // Tomar el valor sin puntos desde data-raw
-    const capitalInput = document.getElementById('capital');
-    const finalInput = document.getElementById('final');
-    const capital = parseFloat(capitalInput.dataset.raw || "0");
-    const montoFinal = parseFloat(finalInput.dataset.raw || "0");
-    const dias = parseInt(document.getElementById('dias').value);
-    const diasAnio = 365;
-
-    const resultadoTNA = document.getElementById('resultado_tna');
-    const resultadoTEA = document.getElementById('resultado_tea');
-    const resultadoTNM = document.getElementById('resultado_tnm');
-    const resultadoTEM = document.getElementById('resultado_tem');
-
-    const valoresValidos = !isNaN(capital) && capital > 0 && !isNaN(montoFinal) && montoFinal > capital && !isNaN(dias) && dias > 0;
-
-    if (valoresValidos) {
-        // TNA
-        const tna = ((montoFinal - capital) / capital) * (diasAnio / dias) * 100;
-        resultadoTNA.textContent = `TNA: ${tna.toFixed(2)}%`;
-
-        // TEA
-        const tea = Math.pow((montoFinal / capital), (diasAnio / dias)) - 1;
-        resultadoTEA.textContent = `TEA: ${(tea * 100).toFixed(2)}%`;
-
-        const tnm = tna / 12;
-        resultadoTNM.textContent = `TNM: ${tnm.toFixed(2)}%`;
-        const tem = tea / 12;
-        resultadoTEM.textContent = `TEM: ${(tem * 100).toFixed(2)}%`;
-
-        [resultadoTNA, resultadoTEA, resultadoTNM, resultadoTEM].forEach(el => {
-            el.classList.add('fade-in');
-            setTimeout(() => el.classList.remove('fade-in'), 800);
-        });
-
-        // Guardar en historial
-        agregarHistorial('inversion', {
-            capital,
-            montoFinal,
-            dias,
-            tna: tna.toFixed(2),
-            tea: (tea * 100).toFixed(2),
-            tnm: tnm.toFixed(2),
-            tem: (tem * 100).toFixed(2)
-        });
-    } else {
-        [resultadoTNA, resultadoTEA, resultadoTNM, resultadoTEM].forEach(el => {
-            el.classList.add('fade-in');
-            setTimeout(() => el.classList.remove('fade-in'), 800);
+            dinero, tna, tiempo, rendimientoTotal, interesGanado
         });
     }
 }
 
-// --- Historial de cálculos ---
+// C. COMPUESTO
+function calcularCompuesto() {
+    const capital = parsearValor(document.getElementById('compound-capital').value);
+    // IMPORTANTE: TNA con parser
+    const tna = parsearValor(document.getElementById('compound-tna').value);
+    const plazoMeses = parseFloat(document.getElementById('compound-plazo').value) || 0;
+    const frecuenciaDias = parseInt(document.getElementById('compound-frecuencia').value);
+
+    document.getElementById('error-compound-capital').textContent = capital <= 0 ? "Requerido" : "";
+    document.getElementById('error-compound-tna').textContent = tna <= 0 ? "Requerido" : "";
+
+    if (capital > 0 && tna > 0 && plazoMeses > 0) {
+        const m = 365 / frecuenciaDias;
+        const i = tna / 100;
+        const periodosTotal = Math.round(plazoMeses / (frecuenciaDias / 30));
+        const tasaPeriodo = i / m;
+
+        let html = '<table class="compound-table"><thead><tr><th>Período</th><th>Días</th><th>Monto</th><th>Interés</th></tr></thead><tbody>';
+        let montoActual = capital;
+        let diasAcum = 0;
+
+        for (let p = 1; p <= periodosTotal; p++) {
+            montoActual = capital * Math.pow(1 + tasaPeriodo, p);
+            const interesGanado = montoActual - capital;
+            diasAcum = Math.round(p * frecuenciaDias);
+            let nombre = frecuenciaDias === 30 ? `Mes ${p}` : `P.${p}`;
+
+            html += `<tr>
+                <td>${nombre}</td>
+                <td>${diasAcum}</td>
+                <td>$${formatearMoneda(montoActual)}</td>
+                <td>$${formatearMoneda(interesGanado)}</td>
+            </tr>`;
+        }
+        html += '</tbody></table>';
+
+        const interesTotal = montoActual - capital;
+        const rendPorc = ((montoActual - capital) / capital) * 100;
+
+        html += `<div class="compound-summary">
+            <strong>Monto final:</strong> $${formatearMoneda(montoActual)}<br>
+            <strong>Interés total:</strong> $${formatearMoneda(interesTotal)}<br>
+            <strong>Rendimiento:</strong> ${formatearMoneda(rendPorc)}%
+        </div>`;
+
+        document.getElementById('compound-results').innerHTML = html;
+
+        agregarHistorial('compuesto', {
+            capital, tna, plazoMeses,
+            montoFinal: montoActual, interesTotal, rendimiento: rendPorc
+        });
+    }
+}
+
+// D. COMPARADOR
+function calcularComparador() {
+    const capital = parsearValor(document.getElementById('comparador-capital').value);
+    // IMPORTANTE: TNAs con parser
+    const tnaPF = parsearValor(document.getElementById('comparador-plazo-fijo-tna').value);
+    const tnaBill = parsearValor(document.getElementById('comparador-billetera-tna').value);
+    const diasTotal = parseFloat(document.getElementById('comparador-periodo').value) || 0;
+
+    document.getElementById('error-comparador-capital').textContent = capital <= 0 ? "Requerido" : "";
+    document.getElementById('error-comparador-plazo-fijo-tna').textContent = tnaPF <= 0 ? "Requerido" : "";
+    document.getElementById('error-comparador-billetera-tna').textContent = tnaBill <= 0 ? "Requerido" : "";
+
+    if (capital > 0 && tnaPF > 0 && tnaBill > 0 && diasTotal > 0) {
+        const diasPF = 30;
+        const renovaciones = Math.floor(diasTotal / diasPF);
+        const diasRest = diasTotal % diasPF;
+        let montoPF = capital;
+        for(let i=0; i<renovaciones; i++) montoPF += montoPF * (tnaPF/100) * (diasPF/365);
+        if(diasRest > 0) montoPF += montoPF * (tnaPF/100) * (diasRest/365);
+
+        const tasaDiaria = (tnaBill/100)/365;
+        const montoBill = capital * Math.pow(1 + tasaDiaria, diasTotal);
+
+        const difAbs = montoPF - montoBill;
+        const intPF = montoPF - capital;
+        const intBill = montoBill - capital;
+
+        let html = '<div class="comparador-container">';
+        
+        html += `<div class="escenario escenario-a">
+            <h3>Plazo Fijo</h3>
+            <p><strong>TNA:</strong> ${formatearMoneda(tnaPF)}%</p>
+            <div class="resultado-monto">Final: $${formatearMoneda(montoPF)}</div>
+            <p>Interés: $${formatearMoneda(intPF)}</p>
+        </div>`;
+
+        html += `<div class="escenario escenario-b">
+            <h3>Billetera Virtual</h3>
+            <p><strong>TNA:</strong> ${formatearMoneda(tnaBill)}%</p>
+            <div class="resultado-monto">Final: $${formatearMoneda(montoBill)}</div>
+            <p>Interés: $${formatearMoneda(intBill)}</p>
+        </div>`;
+
+        const mejor = difAbs > 0 ? "Plazo Fijo" : "Billetera Virtual";
+        const cssClass = difAbs > 0 ? "ventaja-plazo-fijo" : "ventaja-billetera";
+        
+        html += `<div class="analisis-comparativo">
+            <div class="${cssClass}">
+                <strong>✓ Conviene ${mejor}</strong><br>
+                Diferencia: $${formatearMoneda(Math.abs(difAbs))}
+            </div>
+        </div></div>`;
+
+        document.getElementById('comparador-results').innerHTML = html;
+
+        agregarHistorial('comparador', {
+            capital, tnaPlazoFijo: tnaPF, tnaBilletera: tnaBill, diasTotal,
+            montoPlazoFijo: montoPF, montoBilletera: montoBill, diferenciaAbsoluta: difAbs
+        });
+    }
+}
+
+// --- UTILIDADES VARIAS ---
+function animarResultado(el) {
+    el.classList.remove('fade-in');
+    void el.offsetWidth;
+    el.classList.add('fade-in');
+}
+
+function toggleMobileIndex() {
+    document.getElementById('mobile-index-menu').classList.toggle('active');
+}
+
 function agregarHistorial(tipo, datos) {
-    const key = tipo === 'inversion' ? 'historialInversion' : 'historialRendimiento';
+    let key = getStorageKey(tipo);
     let historial = JSON.parse(localStorage.getItem(key) || '[]');
     historial.unshift(datos);
-    if (historial.length > 10) historial = historial.slice(0, 10); // Solo los últimos 10
+    if (historial.length > 5) historial = historial.slice(0, 5);
     localStorage.setItem(key, JSON.stringify(historial));
     renderizarHistorial(tipo);
 }
 
+function getStorageKey(tipo) {
+    if(tipo === 'inversion') return 'historialInversion';
+    if(tipo === 'rendimiento') return 'historialRendimiento';
+    if(tipo === 'compuesto') return 'historialCompuesto';
+    if(tipo === 'comparador') return 'historialComparador';
+    return '';
+}
+
 function renderizarHistorial(tipo) {
-    const key = tipo === 'inversion' ? 'historialInversion' : 'historialRendimiento';
+    let key = getStorageKey(tipo);
+    let ulId = `historial-${tipo}`;
+    const ul = document.getElementById(ulId);
+    if(!ul) return;
+
     const historial = JSON.parse(localStorage.getItem(key) || '[]');
-    const ul = document.getElementById(tipo === 'inversion' ? 'historial-inversion' : 'historial-rendimiento');
     ul.innerHTML = '';
+    
     if (historial.length === 0) {
-        ul.innerHTML = '<li style="color:#888;font-size:0.95rem;background:transparent;border:none;padding:0;box-shadow:none;">Sin cálculos recientes.</li>';
+        ul.innerHTML = '<li style="color:#888;font-size:0.85rem;">Sin historial reciente.</li>';
         return;
     }
-    const item = historial[0];
+
+    const item = historial[0]; 
+    const fmt = (v) => formatearMoneda(v);
+
     if (tipo === 'inversion') {
         ul.innerHTML += `<li>
-            <strong>Capital:</strong> $${item.capital.toLocaleString('es-AR')}<br>
-            <strong>Final:</strong> $${item.montoFinal.toLocaleString('es-AR')}<br>
-            <strong>Días:</strong> ${item.dias}<br>
-            <strong>TNA:</strong> ${item.tna}%<br>
-            <strong>TEA:</strong> ${item.tea}%<br>
-            <strong>TNM:</strong> ${item.tnm}%<br>
-            <strong>TEM:</strong> ${item.tem}%
+            <strong>Capital:</strong> $${fmt(item.capital)}<br>
+            <strong>Final:</strong> $${fmt(item.montoFinal)}<br>
+            <strong>TNA:</strong> ${fmt(item.tna)}% | <strong>TEA:</strong> ${fmt(item.tea)}%
         </li>`;
-    } else {
+    } else if (tipo === 'rendimiento') {
         ul.innerHTML += `<li>
-            <strong>Dinero:</strong> $${item.dinero.toLocaleString('es-AR')}<br>
-            <strong>TNA:</strong> ${item.tna}%<br>
-            <strong>Días:</strong> ${item.tiempo}<br>
-            <strong>Rendimiento:</strong> $${item.rendimientoTotal}<br>
-            <strong>Interés:</strong> $${item.interesGanado}
+            <strong>Inv:</strong> $${fmt(item.dinero)}<br>
+            <strong>Rend:</strong> $${fmt(item.rendimientoTotal)}
+        </li>`;
+    } else if (tipo === 'compuesto') {
+        ul.innerHTML += `<li>
+            <strong>Cap:</strong> $${fmt(item.capital)}<br>
+            <strong>Final:</strong> $${fmt(item.montoFinal)}<br>
+            <strong>Rend:</strong> ${fmt(item.rendimiento)}%
+        </li>`;
+    } else if (tipo === 'comparador') {
+        const ganador = item.diferenciaAbsoluta > 0 ? 'Plazo Fijo' : 'Billetera';
+        ul.innerHTML += `<li>
+            <strong>Cap:</strong> $${fmt(item.capital)}<br>
+            <strong>Mejor:</strong> ${ganador} (+$${fmt(Math.abs(item.diferenciaAbsoluta))})
         </li>`;
     }
-}
-
-function borrarHistorial(tipo) {
-    const key = tipo === 'inversion' ? 'historialInversion' : 'historialRendimiento';
-    localStorage.removeItem(key);
-    renderizarHistorial(tipo);
-}
-
-function renderizarHistorialCompuesto(tipo = 'compuesto') {
-    const historial = JSON.parse(localStorage.getItem('historialCompuesto') || '[]');
-    const ul = document.getElementById('historial-compuesto');
-    ul.innerHTML = '';
-    if (historial.length === 0) {
-        ul.innerHTML = '<li style="color:#888;font-size:0.95rem;background:transparent;border:none;padding:0;box-shadow:none;">Sin cálculos recientes.</li>';
-        return;
-    }
-    const item = historial[0];
-    ul.innerHTML = `<li>
-        <strong>Capital:</strong> $${item.capital.toLocaleString('es-AR')}<br>
-        <strong>Final:</strong> $${item.montoFinal.toLocaleString('es-AR')}<br>
-        <strong>Interés:</strong> $${item.interesGanado.toLocaleString('es-AR')}<br>
-        <strong>Plazo:</strong> ${item.meses} mes/es<br>
-        <strong>Frecuencia:</strong> ${item.frecuencia}<br>
-        <strong>Tasa:</strong> ${item.tasa}% ${item.tipoTasa}
-    </li>`;
-}
-
-function renderizarHistorialComparador(tipo = 'comparador') {
-    const historial = JSON.parse(localStorage.getItem('historialComparador') || '[]');
-    const ul = document.getElementById('historial-comparador');
-    ul.innerHTML = '';
-    if (historial.length === 0) {
-        ul.innerHTML = '<li style="color:#888;font-size:0.95rem;background:transparent;border:none;padding:0;box-shadow:none;">Sin cálculos recientes.</li>';
-        return;
-    }
-    const item = historial[0];
-    const mejor = item.diferenciaAbsoluta > 0 ? 'Plazo Fijo' : 'Billetera Virtual';
-    ul.innerHTML = `<li>
-        <strong>Capital:</strong> $${item.capital.toLocaleString('es-AR')}<br>
-        <strong>Plazo Fijo Final:</strong> $${item.montoFinalPlazoFijo.toLocaleString('es-AR')}<br>
-        <strong>Billetera Final:</strong> $${item.montoFinalBilletera.toLocaleString('es-AR')}<br>
-        <strong>Diferencia:</strong> $${Math.abs(item.diferenciaAbsoluta).toLocaleString('es-AR')}<br>
-        <strong>Mejor:</strong> ${mejor}<br>
-        <strong>Período:</strong> ${item.periodo} días
-    </li>`;
-}
-
-window.addEventListener('DOMContentLoaded', function() {
-    renderizarHistorial('inversion');
-    renderizarHistorial('rendimiento');
-    renderizarHistorialCompuesto();
-    renderizarHistorialComparador();
-});
-
-// Simulador de Interés Compuesto
-function calcularCompuesto() {
-    // Validar campos primero
-    window.validateCompoundFields();
-
-    const capitalInput = document.getElementById('compound-capital');
-    const tnaInput = document.getElementById('compound-tna');
-    const plazoInput = document.getElementById('compound-plazo');
-    const frecuenciaInput = document.getElementById('compound-frecuencia');
-    
-    const capital = parseFloat(capitalInput.dataset.raw || "0");
-    const tna = parseFloat(tnaInput.value);
-    const plazoMeses = parseInt(plazoInput.value);
-    const frecuenciaDias = parseInt(frecuenciaInput.value);
-    
-    // Validar
-    if (!capital || capital <= 0 || !tna || tna <= 0 || !plazoMeses || plazoMeses <= 0) {
-        return;
-    }
-    
-    // Convertir plazo de meses a años
-    const plazoAnios = plazoMeses / 12;
-    
-    // Calcular parámetros
-    const m = 365 / frecuenciaDias; // Frecuencia de capitalización anual (puede ser decimal)
-    const n = plazoAnios; // Años
-    const i = tna / 100; // Tasa anual en decimal
-    const periodosTotal = Math.round(plazoMeses / (frecuenciaDias / 30)); // Total de períodos
-    const tasaPeriodo = i / m; // Tasa por período
-    
-    // Generar tabla
-    let html = '<table class="compound-table"><thead><tr>';
-    html += '<th>Período</th><th>Días acumulados</th><th>Monto</th><th>Interés ganado</th>';
-    html += '</tr></thead><tbody>';
-    
-    let montoActual = capital;
-    let diasAcumulados = 0;
-    
-    for (let p = 1; p <= periodosTotal; p++) {
-        const montoAnterior = montoActual;
-        montoActual = capital * Math.pow(1 + tasaPeriodo, p);
-        const interesGanado = montoActual - capital;
-        diasAcumulados = Math.round(p * frecuenciaDias);
-        
-        let nombrePeriodo = '';
-        if (frecuenciaDias === 1) nombrePeriodo = `Día ${p}`;
-        else if (frecuenciaDias === 7) nombrePeriodo = `Semana ${p}`;
-        else if (frecuenciaDias === 14) nombrePeriodo = `Quincena ${p}`;
-        else if (frecuenciaDias === 30) nombrePeriodo = `Mes ${p}`;
-        else if (frecuenciaDias === 60) nombrePeriodo = `Bimestre ${p}`;
-        else if (frecuenciaDias === 90) nombrePeriodo = `Trimestre ${p}`;
-        else if (frecuenciaDias === 180) nombrePeriodo = `Semestre ${p}`;
-        else if (frecuenciaDias === 365) nombrePeriodo = `Año ${p}`;
-        
-        html += '<tr>';
-        html += `<td>${nombrePeriodo}</td>`;
-        html += `<td>${diasAcumulados}</td>`;
-        html += `<td>$${montoActual.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>`;
-        html += `<td>$${interesGanado.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>`;
-        html += '</tr>';
-    }
-    
-    html += '</tbody></table>';
-    
-    // Resumen
-    const interesTotal = montoActual - capital;
-    const rendimientoPorcentaje = ((montoActual - capital) / capital) * 100;
-    
-    html += `<div class="compound-summary">
-        <strong>Monto final:</strong> $${montoActual.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}<br>
-        <strong>Interés total ganado:</strong> $${interesTotal.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}<br>
-        <strong>Rendimiento:</strong> ${rendimientoPorcentaje.toFixed(2)}%
-    </div>`;
-    
-    // Agregar al historial
-    const datosCompuesto = {
-        capital: capital,
-        tna: tna,
-        tasa: tna,
-        tipoTasa: 'TNA',
-        meses: plazoMeses,
-        plazoMeses: plazoMeses,
-        frecuenciaDias: frecuenciaDias,
-        frecuencia: frecuenciaInput.options[frecuenciaInput.selectedIndex].text,
-        montoFinal: montoActual,
-        interesGanado: interesTotal,
-        interesTotal: interesTotal,
-        rendimiento: rendimientoPorcentaje
-    };
-    agregarHistorialCompuesto(datosCompuesto);
-    renderizarHistorialCompuesto();
-    
-    document.getElementById('compound-results').innerHTML = html;
-}
-
-// --- Historial de Interés Compuesto ---
-function agregarHistorialCompuesto(datos) {
-    let historial = JSON.parse(localStorage.getItem('historialCompuesto') || '[]');
-    historial.unshift(datos);
-    if (historial.length > 10) historial.pop(); // Solo los últimos 10
-    localStorage.setItem('historialCompuesto', JSON.stringify(historial));
-}
-
-// --- Historial de Comparador ---
-function agregarHistorialComparador(datos) {
-    let historial = JSON.parse(localStorage.getItem('historialComparador') || '[]');
-    historial.unshift(datos);
-    if (historial.length > 10) historial.pop(); // Solo los últimos 10
-    localStorage.setItem('historialComparador', JSON.stringify(historial));
-}
-
-// Formateo y validación para comparador de instrumentos
-function setupComparadorFormatting() {
-    const capitalInput = document.getElementById('comparador-capital');
-    const plazoFijoInput = document.getElementById('comparador-plazo-fijo-tna');
-    const bilgeteraInput = document.getElementById('comparador-billetera-tna');
-    const periodoInput = document.getElementById('comparador-periodo');
-    
-    if (!capitalInput || !plazoFijoInput || !bilgeteraInput || !periodoInput) return;
-
-    function validateComparadorCapital(showError = false) {
-        const errorDiv = document.getElementById('error-comparador-capital');
-        const value = capitalInput.dataset.raw || "";
-        if (showError && (!value || parseFloat(value) <= 0)) {
-            errorDiv.textContent = "Ingresa un monto válido (> 0)";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
-    function validateComparadorPlazoFijo(showError = false) {
-        const errorDiv = document.getElementById('error-comparador-plazo-fijo-tna');
-        const value = plazoFijoInput.value;
-        if (showError && (!value || parseFloat(value) <= 0)) {
-            errorDiv.textContent = "Ingresa una TNA válida (> 0)";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
-    function validateComparadorBilletera(showError = false) {
-        const errorDiv = document.getElementById('error-comparador-billetera-tna');
-        const value = bilgeteraInput.value;
-        if (showError && (!value || parseFloat(value) <= 0)) {
-            errorDiv.textContent = "Ingresa una TNA válida (> 0)";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
-    function validateComparadorPeriodo(showError = false) {
-        const errorDiv = document.getElementById('error-comparador-periodo');
-        const value = periodoInput.value;
-        if (showError && (!value || parseInt(value) <= 0)) {
-            errorDiv.textContent = "Ingresa un período válido (> 0)";
-        } else {
-            errorDiv.textContent = "";
-        }
-    }
-
-    capitalInput.addEventListener('input', function(e) {
-        let raw = capitalInput.value.replace(/\./g, "").replace(/[^\d,]/g, "");
-        capitalInput.dataset.raw = raw.replace(/,/g, ".");
-        let parts = raw.split(/[,]/);
-        let intPart = parts[0];
-        let decPart = parts[1] || "";
-        let formattedInt = formatNumberWithDots(intPart);
-        let formatted = decPart ? formattedInt + "," + decPart : formattedInt;
-        capitalInput.value = formatted;
-        capitalInput.setSelectionRange(capitalInput.value.length, capitalInput.value.length);
-    });
-
-    // Exponer funciones para validar cuando se presiona el botón
-    window.validateComparadorFields = function() {
-        validateComparadorCapital(true);
-        validateComparadorPlazoFijo(true);
-        validateComparadorBilletera(true);
-        validateComparadorPeriodo(true);
-    };
-}
-
-window.addEventListener('DOMContentLoaded', setupComparadorFormatting);
-
-// Función para calcular la comparación de instrumentos
-function calcularComparador() {
-    // Validar campos primero
-    window.validateComparadorFields();
-
-    const capitalInput = document.getElementById('comparador-capital');
-    const plazoFijoInput = document.getElementById('comparador-plazo-fijo-tna');
-    const bilgeteraInput = document.getElementById('comparador-billetera-tna');
-    const periodoInput = document.getElementById('comparador-periodo');
-    
-    const capital = parseFloat(capitalInput.dataset.raw || "0");
-    const tnaPlazoFijo = parseFloat(plazoFijoInput.value);
-    const tnaBilletera = parseFloat(bilgeteraInput.value);
-    const diasTotal = parseInt(periodoInput.value);
-    
-    // Validar
-    if (!capital || capital <= 0 || !tnaPlazoFijo || tnaPlazoFijo <= 0 || !tnaBilletera || tnaBilletera <= 0 || !diasTotal || diasTotal <= 0) {
-        return;
-    }
-
-    // Escenario A: Plazo Fijo a 30 días renovable
-    const diasPlazoFijo = 30;
-    const renovaciones = Math.floor(diasTotal / diasPlazoFijo);
-    const diasRestantes = diasTotal % diasPlazoFijo;
-    
-    let montoPlazoFijo = capital;
-    
-    // Aplicar renovaciones completas de 30 días
-    for (let i = 0; i < renovaciones; i++) {
-        const interes = montoPlazoFijo * (tnaPlazoFijo / 100) * (diasPlazoFijo / 365);
-        montoPlazoFijo += interes;
-    }
-    
-    // Aplicar días restantes
-    if (diasRestantes > 0) {
-        const interes = montoPlazoFijo * (tnaPlazoFijo / 100) * (diasRestantes / 365);
-        montoPlazoFijo += interes;
-    }
-    
-    // Escenario B: Billetera Virtual con interés diario
-    // Fórmula: M = C × (1 + TNADiaria/100)^días, donde TNADiaria = TNA/365
-    const tasaDiariaDecimal = (tnaBilletera / 100) / 365;
-    const montoBilletera = capital * Math.pow(1 + tasaDiariaDecimal, diasTotal);
-    
-    // Calcular diferencias
-    const diferenciaAbsoluta = montoPlazoFijo - montoBilletera;
-    const diferenciaRelativa = (diferenciaAbsoluta / montoBilletera) * 100;
-    
-    const interesesPlazoFijo = montoPlazoFijo - capital;
-    const interesesBilletera = montoBilletera - capital;
-    
-    // Generar HTML de resultados
-    let html = '<div class="comparador-container">';
-    
-    // Escenario A
-    html += '<div class="escenario escenario-a">';
-    html += '<h3>Plazo Fijo</h3>';
-    html += `<p><strong>TNA:</strong> ${tnaPlazoFijo}%</p>`;
-    html += `<p><strong>Renovaciones de 30 días:</strong> ${renovaciones}</p>`;
-    if (diasRestantes > 0) {
-        html += `<p><strong>Días adicionales:</strong> ${diasRestantes}</p>`;
-    }
-    html += `<div class="resultado-monto">
-        <strong>Monto Final:</strong> $${montoPlazoFijo.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}
-    </div>`;
-    html += `<p><strong>Interés ganado:</strong> $${interesesPlazoFijo.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}</p>`;
-    html += `<p><strong>Rendimiento:</strong> ${((interesesPlazoFijo / capital) * 100).toFixed(2)}%</p>`;
-    html += '</div>';
-    
-    // Escenario B
-    html += '<div class="escenario escenario-b">';
-    html += '<h3>Billetera Virtual</h3>';
-    html += `<p><strong>TNA:</strong> ${tnaBilletera}%</p>`;
-    html += `<p><strong>Capitalización:</strong> Diaria</p>`;
-    html += `<p><strong>Período:</strong> ${diasTotal} días</p>`;
-    html += `<div class="resultado-monto">
-        <strong>Monto Final:</strong> $${montoBilletera.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}
-    </div>`;
-    html += `<p><strong>Interés ganado:</strong> $${interesesBilletera.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}</p>`;
-    html += `<p><strong>Rendimiento:</strong> ${((interesesBilletera / capital) * 100).toFixed(2)}%</p>`;
-    html += '</div>';
-    
-    // Análisis comparativo
-    html += '<div class="analisis-comparativo">';
-    html += '<h3>Análisis Comparativo</h3>';
-    
-    if (diferenciaAbsoluta > 0) {
-        html += `<div class="ventaja-plazo-fijo">
-            <strong>✓ Plazo Fijo es más rentable</strong><br>
-            <strong>Diferencia:</strong> $${diferenciaAbsoluta.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})} (${diferenciaRelativa.toFixed(2)}% más)
-        </div>`;
-    } else {
-        html += `<div class="ventaja-billetera">
-            <strong>✓ Billetera Virtual es más rentable</strong><br>
-            <strong>Diferencia:</strong> $${Math.abs(diferenciaAbsoluta).toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})} (${Math.abs(diferenciaRelativa).toFixed(2)}% más)
-        </div>`;
-    }
-    
-    html += `<p><strong>Costo de oportunidad:</strong> Por cada día, la diferencia de rendimiento es de $${(Math.abs(diferenciaAbsoluta) / diasTotal).toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}</p>`;
-    html += '</div>';
-    
-    html += '</div>';
-    
-    // Agregar al historial
-    const datosComparador = {
-        capital: capital,
-        tnaPlazoFijo: tnaPlazoFijo,
-        tnaBilletera: tnaBilletera,
-        diasTotal: diasTotal,
-        periodo: diasTotal,
-        montoPlazoFijo: montoPlazoFijo,
-        montoFinalPlazoFijo: montoPlazoFijo,
-        montoBilletera: montoBilletera,
-        montoFinalBilletera: montoBilletera,
-        diferenciaAbsoluta: diferenciaAbsoluta,
-        interesesPlazoFijo: interesesPlazoFijo,
-        interesesBilletera: interesesBilletera
-    };
-    agregarHistorialComparador(datosComparador);
-    renderizarHistorialComparador();
-    
-    document.getElementById('comparador-results').innerHTML = html;
 }
